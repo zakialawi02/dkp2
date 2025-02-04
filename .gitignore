@@ -1,0 +1,21 @@
+# Ignore writeable
+/writable/cache/*
+/writable/uploads/*
+/writable/debugbar/*
+/writable/session/*
+/writable/logs/*.log
+
+# Ignore composer
+/composer.json
+/composer.lock
+/vendor/*
+!/vendor/myth/
+
+
+# Ignore .env
+/.env
+.env
+*.env
+
+# Ignore editor backup files
+*~
