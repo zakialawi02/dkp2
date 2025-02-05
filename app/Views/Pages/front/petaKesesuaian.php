@@ -25,7 +25,6 @@
         height: calc(100vh - 55px);
     }
 
-
     #topLeft {
         position: absolute;
         top: 5px;
@@ -151,6 +150,63 @@
     .ol-custom-overviewmap .ol-overviewmap-box {
         border: 2px solid red;
     }
+
+    .basemap-switcher {
+        position: absolute;
+        bottom: 50px;
+        left: 5px;
+        background: white;
+        padding: 6px;
+        border-radius: 5px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        z-index: 10;
+    }
+
+    .basemap-options {
+        display: none;
+        flex-direction: row;
+        gap: 6px;
+        margin-left: 8px;
+    }
+
+    .basemap-switcher:hover .basemap-options {
+        display: flex;
+    }
+
+    .basemap-option {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 5px;
+        cursor: pointer;
+        border-radius: 5px;
+        transition: background 0.3s;
+    }
+
+    .basemap-option img {
+        width: 50px;
+        height: 50px;
+        border-radius: 4px;
+    }
+
+    .basemap-option input[type="radio"] {
+        display: none;
+    }
+
+    .basemap-switcher span {
+        font-size: 11px;
+    }
+
+    .basemap-option.active {
+        background: rgba(0, 0, 0, 0.1);
+    }
+
+    .trigger-basemap {
+        cursor: pointer;
+    }
 </style>
 <?php $this->endSection() ?>
 
@@ -175,8 +231,39 @@
             <!-- Scaleline -->
             <div class="position-relative" id="scaleline"></div>
 
+            <div class="basemap-switcher">
+                <div class="trigger-basemap" onclick="toggleOptions()">
+                    <img id="active-basemap" src="/assets/img/mapSystem/icon/here_satelliteday.png" alt="Active Basemap">
+                    <span class="d-block">Basemap</span>
+                </div>
+                <div class="basemap-options">
+                    <label class="basemap-option">
+                        <input type="radio" name="basemap" value="bing" onclick="setBasemap('bing', this)">
+                        <img src="/assets/img/mapSystem/icon/here_satelliteday.png" alt="Satellite">
+                        <span>Satellite</span>
+                    </label>
+                    <label class="basemap-option">
+                        <input type="radio" name="basemap" value="mapbox" checked onclick="setBasemap('mapbox', this)">
+                        <img src="/assets/img/mapSystem/icon/here_normalday.png" alt="Mapbox">
+                        <span>Street Mapbox</span>
+                    </label>
+                    <label class="basemap-option">
+                        <input type="radio" name="basemap" value="osm" onclick="setBasemap('osm', this)">
+                        <img src="/assets/img/mapSystem/icon/openstreetmap_mapnik.png" alt="OpenStreet">
+                        <span>OpenStreet Map</span>
+                    </label>
+                    <label class="basemap-option">
+                        <input type="radio" name="basemap" value="esriTerrain" onclick="setBasemap('esriTerrain', this)">
+                        <img src="/assets/img/mapSystem/icon/esri_worldterrain.png" alt="Esri Terrain">
+                        <span>Esri Terrain</span>
+                    </label>
+                </div>
+            </div>
+
         </div>
     </div>
+
+
 
     <div class="" id="bottomRight">
         <!-- Zoom Toggle -->
@@ -200,6 +287,8 @@
     let OSM = ol.source.OSM;
     let TileLayer = ol.layer.Tile;
     let TileSource = ol.source.Tile;
+    let Layer = ol.layer.WebGLTile;
+    let Source = ol.source.ImageTile;
     let {
         fromLonLat,
         toLonLat,
@@ -301,7 +390,19 @@
         visible: false,
         preload: 15,
     });
-    const baseMaps = [osmBaseMap, bingAerialBaseMap, mapboxBaseMap];
+
+    const esriMap = new Layer({
+        source: new Source({
+            attributions: 'Tiles © <a href="https://services.arcgisonline.com/ArcGIS/' +
+                'rest/services/World_Topo_Map/MapServer">ArcGIS</a>',
+            url: 'https://server.arcgisonline.com/ArcGIS/rest/services/' +
+                'World_Topo_Map/MapServer/tile/{z}/{y}/{x}',
+        }),
+        crossOrigin: "anonymous",
+        visible: false
+    });
+
+    const baseMaps = [osmBaseMap, bingAerialBaseMap, mapboxBaseMap, esriMap];
 
     // Minimap
     const overviewMapControl = new OverviewMap({
@@ -434,6 +535,65 @@
         ],
     });
 
+    function setBasemap(mapType, element = null) {
+        document.getElementById('active-basemap').src = element?.nextElementSibling?.src ?? element?.querySelector('img')?.src;
+        if (mapType === 'osm') {
+            setOsmBasemap();
+        } else if (mapType === 'bing') {
+            setBingmapBasemap();
+        } else if (mapType === 'mapbox') {
+            setMapboxBasemap();
+        } else if (mapType === 'esriTerrain') {
+            setEsriBasemap();
+        }
+
+        localStorage.setItem("basemap", mapType);
+    }
+
+    function toggleOptions() {
+        document.querySelector('.basemap-options').classList.toggle('d-flex');
+    }
+
+    function initBasemap() {
+        const savedBasemap = localStorage.getItem("basemap");
+        if (savedBasemap) {
+            const element = document.querySelector(`input[name='basemap'][value='${savedBasemap}']`).parentElement;
+            setBasemap(savedBasemap, element);
+        } else {
+            const checkedInput = document.querySelector("input[name='basemap']:checked");
+            setBasemap(checkedInput.value, checkedInput.parentElement);
+        }
+    }
+    initBasemap();
+
+    function setOsmBasemap() {
+        osmBaseMap.setVisible(true);
+        bingAerialBaseMap.setVisible(false);
+        mapboxBaseMap.setVisible(false);
+        esriMap.setVisible(false);
+    }
+
+    function setBingmapBasemap() {
+        osmBaseMap.setVisible(false);
+        bingAerialBaseMap.setVisible(true);
+        mapboxBaseMap.setVisible(false);
+        esriMap.setVisible(false);
+    }
+
+    function setMapboxBasemap() {
+        osmBaseMap.setVisible(false);
+        bingAerialBaseMap.setVisible(false);
+        mapboxBaseMap.setVisible(true);
+        esriMap.setVisible(false);
+    }
+
+    function setEsriBasemap() {
+        osmBaseMap.setVisible(false);
+        bingAerialBaseMap.setVisible(false);
+        mapboxBaseMap.setVisible(false);
+        esriMap.setVisible(true);
+    }
+
     // wms source layer
     const KKPRL_LAYER = new LayerGroup({
         title: "KKPRL (Kesesuaian Kegiatan Pemanfaatan Ruang Laut)",
@@ -443,49 +603,49 @@
     const KKPRL_LAYER_DATA = [{
             name: "Alur_Migrasi_Mamalia_Laut",
             title: "Alur_Migrasi_Mamalia_Laut",
-            visible: true,
+            visible: false,
             opacity: 0.7,
             zIndex: 5,
         },
         {
             name: "Alur_Migrasi_Penyu",
             title: "Alur_Migrasi_Penyu",
-            visible: true,
+            visible: false,
             opacity: 0.7,
             zIndex: 5,
         },
         {
             name: "Alur_Pelayaran_Umum_dan_Perlintasan",
             title: "Alur_Pelayaran_Umum_dan_Perlintasan",
-            visible: true,
+            visible: false,
             opacity: 0.7,
             zIndex: 5,
         },
         {
             name: "Alur_Pelayaran_dan_Perlintasan_Internasional",
             title: "Alur_Pelayaran_dan_Perlintasan_Internasional",
-            visible: true,
+            visible: false,
             opacity: 0.7,
             zIndex: 5,
         },
         {
             name: "Alur_Pelayaran_dan_Perlintasan_Khusus",
             title: "Alur_Pelayaran_dan_Perlintasan_Khusus",
-            visible: true,
+            visible: false,
             opacity: 0.7,
             zIndex: 5,
         },
         {
             name: "Alur_Pelayaran_dan_Perlintasan_Nasional",
             title: "Alur_Pelayaran_dan_Perlintasan_Nasional",
-            visible: true,
+            visible: false,
             opacity: 0.7,
             zIndex: 5,
         },
         {
             name: "Alur_Pelayaran_dan_Perlintasan_Regional",
             title: "Alur_Pelayaran_dan_Perlintasan_Regional",
-            visible: true,
+            visible: false,
             opacity: 0.7,
             zIndex: 5,
         },
@@ -576,7 +736,7 @@
         {
             name: "Zona_Pelabuhan_Umum",
             title: "Zona_Pelabuhan_Umum",
-            visible: true,
+            visible: false,
             opacity: 0.7,
             zIndex: 1,
         },
@@ -656,17 +816,16 @@
         });
     };
 
-    // KKPRL_LAYER_DATA.map(({
-    //     name,
-    //     title,
-    //     visible,
-    //     opacity,
-    //     zIndex,
-    // }) => {
-    //     const layer = createWMSLayer(title, name, visible, opacity, zIndex);
-    //     KKPRL_LAYER.getLayers().push(layer);
-    // });
-
+    KKPRL_LAYER_DATA.map(({
+        name,
+        title,
+        visible,
+        opacity,
+        zIndex,
+    }) => {
+        const layer = createWMSLayer(title, name, visible, opacity, zIndex);
+        KKPRL_LAYER.getLayers().push(layer);
+    });
 
     const kkp = new LayerGroup({
         title: "KKPRL DKP KALTIM 2023",
@@ -694,6 +853,52 @@
         ],
     });
     map.addLayer(kkp);
+
+    const toggleLayerVisibility = (layerName, checked) => {
+        const name = layerName.split(":")[1];
+        const index = KKPRL_LAYER_DATA.findIndex((layer) => layer.name === name);
+        if (index >= 0) {
+            KKPRL_LAYER.getLayers().item(index).setVisible(checked);
+        }
+    };
+
+    const checkboxesLayer = document.querySelectorAll(".layer-panel-body .symbology.kkprl-layer");
+
+    // Ambil data dari localStorage
+    let storedLayers = JSON.parse(localStorage.getItem("kkprl-layer")) || [];
+
+    // Fungsi untuk memperbarui localStorage
+    const updateLocalStorage = () => {
+        const checkedLayers = [...checkboxesLayer]
+            .map(checkbox => checkbox.querySelector("input[type='checkbox']"))
+            .filter(input => input.checked)
+            .map(input => input.value);
+
+        localStorage.setItem("kkprl-layer", JSON.stringify(checkedLayers));
+    };
+
+    // Setel checkbox berdasarkan localStorage atau simpan jika pertama kali
+    checkboxesLayer.forEach((checkbox) => {
+        const input = checkbox.querySelector("input[type='checkbox']");
+        const layerValue = input.value;
+
+        if (storedLayers.length > 0) {
+            input.checked = storedLayers.includes(layerValue);
+        }
+
+        toggleLayerVisibility(layerValue, input.checked);
+
+        // Event listener untuk perubahan checkbox
+        input.addEventListener("change", (event) => {
+            toggleLayerVisibility(event.target.value, event.target.checked);
+            updateLocalStorage();
+        });
+    });
+
+    // Simpan data awal jika localStorage kosong
+    if (storedLayers.length === 0) {
+        updateLocalStorage();
+    }
 </script>
 <?php $this->endSection() ?>
 
