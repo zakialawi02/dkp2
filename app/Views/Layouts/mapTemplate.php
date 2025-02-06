@@ -311,6 +311,7 @@
                 </div>
             </div>
             <div id="errorSHP" class="fs-6 text-danger"></div>
+            <div id="loadFile"></div>
 
 
             <!-- BODY FORM INPUT COORDINATE -->

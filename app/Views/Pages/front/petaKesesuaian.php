@@ -295,7 +295,11 @@
 
 <?php $this->section('javascript') ?>
 <script src="https://cdn.jsdelivr.net/npm/ol@v10.3.1/dist/ol.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.15.0/proj4-src.min.js" integrity="sha512-Hzlk8LOpeLtZLCTLvwaTlQo6iJKTEd/QRH8XgxB9QG7gXApOvOOOsmPYGneRWH2fcscI7Pb/UI6UTv56yfutXw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script src="https://cdn.jsdelivr.net/npm/@turf/turf@7/turf.min.js"></script>
+<script src="https://unpkg.com/shpjs@latest/dist/shp.min.js"></script>
+<script lang="javascript" src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
+
 
 <script>
     let Map = ol.Map;
@@ -364,6 +368,14 @@
     let {
         unByKey
     } = ol.Observable;
+
+    // Daftarkan proyeksi jika SHP menggunakan proyeksi selain EPSG: 4326
+    proj4.defs("EPSG:4326", "+proj=longlat +datum=WGS84 +no_defs"); // Jika EPSG:4326
+    proj4.defs("EPSG:3857", "+proj=merc +lon_0=0 +k=1 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs"); // EPSG:3857
+    proj4.defs("ESRI:54030", "+proj=robin +lon_0=0 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs +type=crs");
+    proj4.defs("ESRI:53034", "+proj=cea +lat_ts=0 +lon_0=0 +x_0=0 +y_0=0 +R=6371000 +units=m +no_defs +type=crs");
+    proj4.defs("ESRI:54034", "+proj=cea +lat_ts=0 +lon_0=0 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs +type=crs");
+    register(proj4); // Daftarkan ke OpenLayers
 
     let WGS84 = new Projection("EPSG:4326");
     let MERCATOR = new Projection("EPSG:3857");
@@ -952,6 +964,15 @@
         $('#nextStep').removeClass('d-none');
     });
 
+    // Fungsi untuk mengonversi DMS ke Decimal Degrees (DD)
+    const dmsToDecimal = (degrees, minutes, seconds, direction) => {
+        let decimal = degrees + minutes / 60 + seconds / 3600;
+        if (direction === "S" || direction === "BB" || direction === "LS") {
+            decimal = decimal * -1; // Ubah menjadi negatif untuk Lintang Selatan & Bujur Barat
+        }
+        return decimal;
+    };
+
     // Variables to manage the number of coordinates
     let coordinateCount = 1;
     const maxCoordinates = 10;
@@ -1061,38 +1082,37 @@
         }
     }
 
-    // Definisikan style
+    // Style for different geometries
     const pointStyle = new Style({
-        image: new CircleStyle({
-            radius: 6,
-            fill: new Fill({
-                color: 'red'
-            }),
-            stroke: new Stroke({
-                color: 'white',
-                width: 2
-            })
-        })
+        image: new Icon({
+            anchor: [0.5, 0.99],
+            anchorXUnits: "fraction",
+            anchorYUnits: "fraction",
+            with: 50,
+            height: 50,
+            opacity: 0.9,
+            src: "./assets/img/mapSystem/icon/marker.svg",
+        }),
     });
 
     const lineStyle = new Style({
         stroke: new Stroke({
-            color: 'blue',
+            color: 'red',
             width: 3
         })
     });
 
     const polygonStyle = new Style({
         stroke: new Stroke({
-            color: 'green',
+            color: 'red',
             width: 2
         }),
         fill: new Fill({
-            color: 'rgba(0, 255, 0, 0.3)'
+            color: 'rgba(255, 0, 0, 0.3)'
         })
     });
 
-    // Fungsi untuk memilih style berdasarkan tipe geometry
+    // Function to choose the style based on geometry type
     const getStyle = (feature) => {
         const type = feature.getGeometry().getType();
         const styles = {
@@ -1103,18 +1123,19 @@
         return styles[type] || null;
     };
 
+
     // Sumber dan layer vector
-    let vectorSource = new VectorSource();
-    let vectorLayer = new VectorLayer({
-        source: vectorSource,
+    let vectorSourceDraw = new VectorSource();
+    let vectorLayerDraw = new VectorLayer({
+        source: vectorSourceDraw,
         style: getStyle
     });
-    map.addLayer(vectorLayer);
+    map.addLayer(vectorLayerDraw);
 
     let dataType, jsonCoordinatesInput, geometryData, geojsonFeature, geojsonData;
     $("#nextStep").click(function(e) {
         e.preventDefault();
-        vectorSource.clear(); // Hapus data sebelumnya
+        vectorSourceDraw.clear(); // Hapus data sebelumnya
 
         jsonCoordinatesInput = [];
         geometryData = [];
@@ -1207,20 +1228,19 @@
         console.log(geojsonData);
 
         if (geojsonData.length > 0) {
-            const format = new GeoJSON();
             geojsonData.forEach(data => {
-                const features = format.readFeatures(data, {
+                const features = new GeoJSON().readFeatures(data, {
                     featureProjection: 'EPSG:4326' // Proyeksi peta geografis
                 });
                 features.forEach(feature => {
                     const geometry = feature.getGeometry();
                     geometry.transform('EPSG:4326', 'EPSG:3857');
                 });
-                vectorSource.addFeatures(features);
+                vectorSourceDraw.addFeatures(features);
             });
 
-            if (vectorSource.getFeatures().length > 0) {
-                const extent = vectorSource.getExtent();
+            if (vectorSourceDraw.getFeatures().length > 0) {
+                const extent = vectorSourceDraw.getExtent();
                 map.getView().fit(extent, {
                     duration: 1000,
                     padding: [100, 100, 100, 100],
@@ -1228,6 +1248,165 @@
                 });
             }
         }
+    });
+
+    // Fungsi untuk menangani file SHP dan menambahkannya ke peta
+    const handleShpFile = (file) => {
+        vectorSourceDraw.clear(); // Hapus data sebelumnya
+        const reader = new FileReader();
+        reader.onload = function(event) {
+            $("#loadFile").html(loader);
+            const arrayBuffer = event.target.result;
+            shp(arrayBuffer).then(function(geojson) {
+                geojsonData = [];
+                geojsonData.push(geojson);
+
+                // Tampilkan sistem proyeksi ke alert
+                const crs = geojson.crs ? geojson.crs.properties.name : "Tidak ditemukan"; // Mendapatkan sistem proyeksi
+                alert("Sistem Proyeksi: " + crs);
+
+                // Jika SHP dalam proyeksi selain EPSG:4326, ubah ke EPSG:3857
+                const features = new GeoJSON().readFeatures(geojson, {
+                    featureProjection: 'EPSG:3857' // Ubah koordinat ke EPSG:3857
+                });
+                vectorSourceDraw.addFeatures(features);
+                // Zoom otomatis ke data
+                const extent = vectorSourceDraw.getExtent();
+
+                map.getView().fit(extent, {
+                    size: map.getSize(),
+                    duration: 1000,
+                    padding: [100, 100, 100, 100],
+                    minResolution: map.getView().getResolutionForZoom(17),
+                });
+                $("#loadFile").html('');
+                console.log("GeoJSON yang dimuat:", geojsonData[0]);
+            });
+        };
+
+        reader.readAsArrayBuffer(file);
+    };
+
+    // Fungsi untuk menangani file XLSX dan mengubahnya ke GeoJSON
+    const handleXlsxFile = (file) => {
+        $("#loadFile").html(loader); // Tampilkan loader
+
+        const reader = new FileReader();
+        reader.onload = function(event) {
+            const data = new Uint8Array(event.target.result);
+            const workbook = XLSX.read(data, {
+                type: "array"
+            });
+
+            const sheetName = workbook.SheetNames[0]; // Ambil sheet pertama
+            const sheet = workbook.Sheets[sheetName];
+            const jsonData = XLSX.utils.sheet_to_json(sheet);
+
+            let _geojsonData = {
+                type: "FeatureCollection",
+                features: []
+            };
+            let groupedData = {};
+
+            // Kelompokkan data berdasarkan 'Kode_Titik'
+            jsonData.forEach(row => {
+                const kodeTitik = row["Kode_Titik"];
+                if (!groupedData[kodeTitik]) groupedData[kodeTitik] = [];
+
+                // Konversi koordinat
+                const lon = dmsToDecimal(row["bujur_derajat"], row["bujur_menit"], row["bujur_detik"], row["BT_BB"]);
+                const lat = dmsToDecimal(row["lintang_derajat"], row["lintang_menit"], row["lintang_detik"], row["LU_LS"]);
+
+                // Pastikan koordinat valid sebelum menambah ke array
+                if (lon !== null && lat !== null && !isNaN(lon) && !isNaN(lat)) {
+                    groupedData[kodeTitik].push([lon, lat]);
+                }
+            });
+
+            // Buat fitur berdasarkan jumlah titik
+            Object.keys(groupedData).forEach(kodeTitik => {
+                const coordinates = groupedData[kodeTitik];
+
+                if (coordinates.length === 0) return; // Skip jika tidak ada koordinat valid
+
+                let geometryType = "Point"; // Default tipe Point
+                let geometryCoordinates = coordinates[0]; // Untuk Point
+
+                if (coordinates.length === 2) {
+                    geometryType = "LineString"; // Jika ada 2 titik, buat Line
+                    geometryCoordinates = coordinates;
+                } else if (coordinates.length > 2) {
+                    geometryType = "Polygon"; // Jika lebih dari 2 titik, buat Polygon
+                    coordinates.push(coordinates[0]); // Tutup poligon
+                    geometryCoordinates = [coordinates];
+                }
+
+                _geojsonData.features.push({
+                    type: "Feature",
+                    properties: {
+                        kode_titik: kodeTitik
+                    },
+                    geometry: {
+                        type: geometryType,
+                        coordinates: geometryCoordinates
+                    }
+                });
+            });
+
+            // Cek apakah GeoJSON valid sebelum ditambahkan ke peta
+            if (_geojsonData.features.length === 0) {
+                console.error("Tidak ada fitur valid dalam GeoJSON.");
+                $("#loadFile").html("⚠️ Data tidak valid.");
+                return;
+            }
+
+            geojsonData = [];
+            geojsonData.push(_geojsonData);
+
+            // Tambahkan data ke OpenLayers
+            const features = new ol.format.GeoJSON().readFeatures(_geojsonData, {
+                featureProjection: "EPSG:3857"
+            });
+            vectorSourceDraw.clear();
+            vectorSourceDraw.addFeatures(features);
+
+            // Zoom ke data
+            const extent = vectorSourceDraw.getExtent();
+            map.getView().fit(extent, {
+                size: map.getSize(),
+                duration: 1000,
+                padding: [100, 100, 100, 100]
+            });
+
+            $("#loadFile").html(""); // Hapus loader
+            console.log("GeoJSON dari XLSX:", geojsonData);
+        };
+
+        reader.readAsArrayBuffer(file);
+    };
+
+    // Event listener untuk memilih file
+    $("#inputByFile").change(function(e) {
+        e.preventDefault();
+        $("#loadFile").html('');
+        const file = event.target.files[0];
+        if (file) {
+            const fileName = file.name.toLowerCase();
+            if (fileName.endsWith(".xlsx") || fileName.endsWith(".xls")) {
+                handleXlsxFile(file); // Proses file Excel
+            } else if (fileName.endsWith(".zip")) {
+                handleShpFile(file); // Proses file SHP (dalam format ZIP)
+            } else {
+                $("#errorSHP").html("Format file tidak didukung! Harap unggah file SHP (ZIP) atau XLSX.");
+            }
+        }
+    });
+
+    // Event listener untuk tombol 'Lanjut'
+    $("#nextStepByFile").click(function(e) {
+        e.preventDefault();
+        // Menampilkan log data GeoJSON setelah tombol diklik
+        console.log("Data GeoJSON yang dimuat pada klik Lanjut:", geojsonData[0]);
     });
 </script>
 <?php $this->endSection() ?>
