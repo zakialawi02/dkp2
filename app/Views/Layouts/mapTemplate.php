@@ -103,7 +103,7 @@
         }
 
         .layer-panel {
-            position: absolute;
+            position: fixed;
             top: 90px;
             left: 65px;
             min-width: 200px;
@@ -143,7 +143,7 @@
         }
 
         .measurement-panel {
-            position: absolute;
+            position: fixed;
             top: 130px;
             left: 65px;
             background: #fff;
@@ -162,11 +162,51 @@
             transform: translateX(0);
         }
 
+        .cek-kesesuaian-panel {
+            position: fixed;
+            top: 90px;
+            right: 15px;
+            min-width: 200px;
+            max-width: 35rem;
+            background: #fff;
+            padding: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 5px;
+            z-index: 10;
+            max-height: 35rem;
+            transition: transform 0.3s ease-in-out;
+            /* transform: translateX(200%); */
+        }
+
+        .cek-kesesuaian-panel.show {
+            display: block;
+            transform: translateX(0);
+        }
+
+        .cek-kesesuaian-panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .cek-kesesuaian-panel-body {
+            font-size: 12px;
+            padding-top: 6px;
+            overflow-y: auto;
+            overflow-x: hidden;
+            max-height: 25rem;
+        }
+
         .symbology kkprl-layer {
             display: block;
             font-size: 14px;
             color: #000000;
             padding-bottom: 1px;
+        }
+
+        .form-radio {
+            transform: scale(1.3);
+            margin-right: 0.5rem;
         }
     </style>
 
@@ -180,7 +220,7 @@
         <div class="p-4 m-2"></div>
         <i class="bi bi-layers" id="toggleLayers" data-bs-toggle="tooltip" title="Layers"></i>
         <i class="bi bi-rulers" id="toggleMeasurement" data-bs-toggle="tooltip" title="Measurement"></i>
-        <i class="bi bi-geo" data-bs-toggle="tooltip" title="Cek Kesesuaian"></i>
+        <i class="bi bi-geo" id="toggleCekKesesuaian" data-bs-toggle="tooltip" title="Cek Kesesuaian"></i>
         <i class="bi bi-geo-alt" data-bs-toggle="tooltip" title="Location"></i>
         <i class="bi bi-vector-pen" data-bs-toggle="tooltip" title="Draw"></i>
     </div>
@@ -228,8 +268,160 @@
         </div>
     </div>
 
+    <div class="cek-kesesuaian-panel" id="cekKesesuaianPanel">
+        <div class="cek-kesesuaian-panel-header">
+            <h6>Cek Kesesuaian</h6>
+            <i class="bi bi-x close-btn" id="closeCekKesesuaian"></i>
+        </div>
 
-    <main class="main-content">
+        <div class="cek-kesesuaian-panel-body px-1">
+            <!-- CHOSE TYPE -->
+            <div class="type-input pb-1">
+                <label class="mb-2">Berdasar :</label>
+
+                <!-- Format Selection -->
+                <div class="row mb-2">
+                    <div class="col-auto">
+                        <div class="form-check">
+                            <input class="form-check-input form-radio" type="radio" name="coordinateType" id="coord_file">
+                            <label class="form-check-label" for="coord_file">Dengan File</label>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <div class="form-check">
+                            <input class="form-check-input form-radio" type="radio" name="coordinateType" id="coord_dd" checked>
+                            <label class="form-check-label" for="coord_dd">Degree Decimal</label>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <div class="form-check">
+                            <input class="form-check-input form-radio" type="radio" name="coordinateType" id="coord_dms">
+                            <label class="form-check-label" for="coord_dms">Degree Minute Second</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FORM INPUT FILE -->
+            <div class="input-by-file d-none col-auto">
+                <div class="mb-2">
+                    <input type="file" class="form-control form-control-sm file-input" name="inputByFile" id="inputByFile"
+                        accept=".zip,.kmz,.topojson,.xlsx,.xls,.csv" aria-describedby="fileHelpId">
+                    <div id="fileHelpId" class="form-text mt-1">Pilih file csv, xlsx, shp(zip), kml</div>
+                </div>
+            </div>
+            <div id="errorSHP" class="fs-6 text-danger"></div>
+
+
+            <!-- BODY FORM INPUT COORDINATE -->
+            <div class="coordinate-field-form">
+                <!-- CHOOSE DATA TYPE -->
+                <label class="mb-2">Tipe Data: </label>
+                <div class="row">
+                    <div class="col-auto">
+                        <div class="form-check">
+                            <input class="form-check-input form-radio" type="radio" name="dataType" id="point_type" value="POINT" checked>
+                            <label class="form-check-label" for="point_type">Point</label>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <div class="form-check">
+                            <input class="form-check-input form-radio" type="radio" name="dataType" id="line_type" value="LINESTRING">
+                            <label class="form-check-label" for="line_type">Line</label>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <div class="form-check">
+                            <input class="form-check-input form-radio" type="radio" name="dataType" id="polygon_type" value="POLYGON">
+                            <label class="form-check-label" for="polygon_type">Polygon</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- MAINFORM INPUT COORDINATE -->
+                <div class="coordinate-field" id="coordinateInput">
+                    <!-- First Coordinate Input -->
+                    <div class="form-group mb-1 pb-1">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <b>Longitude</b><br>
+                                <input id="tx_x" value="117.040" type="text" class="form-control form-control-sm dd-input" alt="posisi X">
+                            </div>
+
+                            <div class="col-md-6">
+                                <b>Latitude</b><br>
+                                <input id="tx_y" value="-1.175" type="text" class="form-control form-control-sm dd-input" alt="posisi Y">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="p-1" style="border-top: 1px dotted rgb(130, 130, 130);"></div>
+
+                    <div class="form-group pb-1">
+                        <div class="row">
+                            <div class="col-md-6 mb-1">
+                                <b>Longitude</b><br>
+                                <div class="row">
+                                    <div class="col-md-3" style="padding-right:2px">
+                                        Degree<br>
+                                        <input id="md1_1" disabled value="117" type="text" class="form-control form-control-sm dms-input" alt="posisi X">
+                                    </div>
+                                    <div class="col-md-3" style="padding-left:2px;padding-right:2px">
+                                        Minute<br>
+                                        <input id="md1_2" disabled value="2" type="text" class="form-control form-control-sm dms-input" alt="posisi X">
+                                    </div>
+                                    <div class="col-md-3" style="padding-left:2px;padding-right:2px">
+                                        Second<br>
+                                        <input id="md1_3" disabled value="24" type="text" class="form-control form-control-sm dms-input" alt="posisi X">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6 mb-1">
+                                <b>Latitude</b><br>
+                                <div class="row">
+                                    <div class="col-md-3" style="padding-right:2px">
+                                        Degree<br>
+                                        <input id="md2_1" disabled value="-1" type="text" class="form-control form-control-sm dms-input" alt="posisi Y">
+                                    </div>
+                                    <div class="col-md-3" style="padding-left:2px;padding-right:2px">
+                                        Minute<br>
+                                        <input id="md2_2" disabled value="10" type="text" class="form-control form-control-sm dms-input" alt="posisi Y">
+                                    </div>
+                                    <div class="col-md-3" style="padding-left:2px;padding-right:2px">
+                                        Second<br>
+                                        <input id="md2_3" disabled value="32" type="text" class="form-control form-control-sm dms-input" alt="posisi Y">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div>
+            <div id="coordinateToogle">
+                <div class="pb-1">
+                    <span class="small">Jumlah Titik: <span id="jumlahCounterK">1</span></span>
+                </div>
+                <div class="d-flex align-items-center gap-1">
+                    <button type="button" class="btn btn-sm btn-outline-dark" id="resetKoordinat" onclick="resetKoordinat()">Reset</button>
+                    <button type="button" class="btn btn-sm btn-outline-dark" id="hapusKoordinat" disabled="true" onclick="hapusKoordinat()">- Hapus Titik</button>
+                    <button type="button" class="btn btn-sm btn-outline-dark" id="tambahKoordinat" onclick="tambahKoordinat()">+ Tambah Titik</button>
+                </div>
+            </div>
+
+            <div class="float-end">
+                <button type="button" class="btn btn-sm btn-primary m-2 d-none" id="nextStepByFile">Lanjut</button>
+                <button type="button" class="btn btn-sm btn-primary m-2" id="nextStep">Lanjut</button>
+            </div>
+        </div>
+    </div>
+    </div>
+
+
+    <main class=" main-content">
         <div class="map-container">
             <!-- Content -->
             <?= $this->renderSection('content') ?>
@@ -321,51 +513,58 @@
             });
         }
 
-        $(document).ready(function() {
-            // Konfigurasi untuk layer panel
-            createPanelToggleHandler({
-                toggleButtonId: 'toggleLayers',
-                panelId: 'layerPanel',
-                closeButtonId: 'closeLayers',
-                otherPanelConfigs: [{
-                    toggleButtonId: 'toggleMeasurement',
-                    panelId: 'measurementPanel'
-                }]
-            });
-
-            // Konfigurasi untuk measurement panel
-            createPanelToggleHandler({
+        // Konfigurasi untuk layer panel
+        createPanelToggleHandler({
+            toggleButtonId: 'toggleLayers',
+            panelId: 'layerPanel',
+            closeButtonId: 'closeLayers',
+            otherPanelConfigs: [{
                 toggleButtonId: 'toggleMeasurement',
-                panelId: 'measurementPanel',
-                closeButtonId: 'closeMeasurement',
-                otherPanelConfigs: [{
-                    toggleButtonId: 'toggleLayers',
-                    panelId: 'layerPanel'
-                }]
-            });
-
-            // Contoh cara menambahkan panel baru
-            // createPanelToggleHandler({
-            //     toggleButtonId: 'toggleSettings',
-            //     panelId: 'settingsPanel',
-            //     closeButtonId: 'closeSettings',
-            //     otherPanelConfigs: [
-            //         {
-            //             toggleButtonId: 'toggleLayers',
-            //             panelId: 'layerPanel'
-            //         },
-            //         {
-            //             toggleButtonId: 'toggleMeasurement',
-            //             panelId: 'measurementPanel'
-            //         }
-            //     ]
-            // });
+                panelId: 'measurementPanel'
+            }]
         });
+
+        // Konfigurasi untuk measurement panel
+        createPanelToggleHandler({
+            toggleButtonId: 'toggleMeasurement',
+            panelId: 'measurementPanel',
+            closeButtonId: 'closeMeasurement',
+            otherPanelConfigs: [{
+                toggleButtonId: 'toggleLayers',
+                panelId: 'layerPanel'
+            }]
+        });
+
+        createPanelToggleHandler({
+            toggleButtonId: 'toggleCekKesesuaian',
+            panelId: 'cekKesesuaianPanel',
+            closeButtonId: 'closeCekKesesuaian',
+            otherPanelConfigs: []
+        });
+
+        // Contoh cara menambahkan panel baru
+        // createPanelToggleHandler({
+        //     toggleButtonId: 'toggleSettings',
+        //     panelId: 'settingsPanel',
+        //     closeButtonId: 'closeSettings',
+        //     otherPanelConfigs: [
+        //         {
+        //             toggleButtonId: 'toggleLayers',
+        //             panelId: 'layerPanel'
+        //         },
+        //         {
+        //             toggleButtonId: 'toggleMeasurement',
+        //             panelId: 'measurementPanel'
+        //         }
+        //     ]
+        // });
 
         // Catatan: 
         // 1. Pastikan jQuery sudah di-include sebelum script ini
         // 2. Struktur HTML harus memiliki id yang sesuai dengan konfigurasi
         // 3. Gunakan kelas 'show' untuk menampilkan/menyembunyikan panel
+
+        const loaderSpinner = `<div class="text-center"><span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span></>`;
     </script>
 
     <?= $this->renderSection('javascript') ?>

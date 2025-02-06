@@ -20,6 +20,20 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ol@v10.3.1/ol.css">
 
 <style>
+    ::-webkit-scrollbar {
+        width: .4rem;
+        background: rgb(172, 172, 172);
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: rgb(68, 102, 194);
+        border-radius: .2rem;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+        background: rgb(39, 80, 191);
+    }
+
     #map {
         width: 100%;
         height: calc(100vh - 55px);
@@ -162,7 +176,7 @@
         display: flex;
         flex-direction: row;
         align-items: center;
-        z-index: 10;
+        z-index: 5;
     }
 
     .basemap-options {
@@ -231,6 +245,7 @@
             <!-- Scaleline -->
             <div class="position-relative" id="scaleline"></div>
 
+            <!-- Basemap -->
             <div class="basemap-switcher">
                 <div class="trigger-basemap" onclick="toggleOptions()">
                     <img id="active-basemap" src="/assets/img/mapSystem/icon/here_satelliteday.png" alt="Active Basemap">
@@ -280,6 +295,7 @@
 
 <?php $this->section('javascript') ?>
 <script src="https://cdn.jsdelivr.net/npm/ol@v10.3.1/dist/ol.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@turf/turf@7/turf.min.js"></script>
 
 <script>
     let Map = ol.Map;
@@ -320,6 +336,7 @@
         Stroke,
         Text,
         IconImage,
+        RegularShape,
         Icon,
     } = ol.style;
     let {
@@ -336,7 +353,10 @@
         toStringHDMS,
         toStringXY
     } = ol.coordinate;
-    let Draw = ol.interaction.Draw;
+    let {
+        Draw,
+        Modify
+    } = ol.interaction;
     let {
         getArea,
         getLength
@@ -899,6 +919,316 @@
     if (storedLayers.length === 0) {
         updateLocalStorage();
     }
+
+
+    $("#coord_file").click(function() {
+        $("#errorSHP").html("");
+        $(".dd-input").prop("disabled", true);
+        $(".dms-input").prop("disabled", true);
+        $('.coordinate-field-form').addClass('d-none');
+        $('#coordinateToogle').addClass('d-none');
+        $('.input-by-file').removeClass('d-none');
+        $('#nextStepByFile').removeClass('d-none');
+        $('#nextStep').addClass('d-none');
+    });
+    $("#coord_dd").click(function() {
+        $("#errorSHP").html("");
+        $(".dd-input").prop("disabled", false);
+        $(".dms-input").prop("disabled", true);
+        $('.coordinate-field-form').removeClass('d-none');
+        $('#coordinateToogle').removeClass('d-none');
+        $('.input-by-file').addClass('d-none');
+        $('#nextStepByFile').addClass('d-none');
+        $('#nextStep').removeClass('d-none');
+    });
+    $("#coord_dms").click(function() {
+        $("#errorSHP").html("");
+        $(".dd-input").prop("disabled", true);
+        $(".dms-input").prop("disabled", false);
+        $('.coordinate-field-form').removeClass('d-none');
+        $('#coordinateToogle').removeClass('d-none');
+        $('.input-by-file').addClass('d-none');
+        $('#nextStepByFile').addClass('d-none');
+        $('#nextStep').removeClass('d-none');
+    });
+
+    // Variables to manage the number of coordinates
+    let coordinateCount = 1;
+    const maxCoordinates = 10;
+
+    const newFieldInput = `
+                <div class="form-group mb-1 pb-1">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <b>Longitude</b><br>
+                                <input id="tx_x" value="117.040" type="text" class="form-control form-control-sm dd-input" alt="posisi X">
+                            </div>
+
+                            <div class="col-md-6">
+                                <b>Latitude</b><br>
+                                <input id="tx_y" value="-1.175" type="text" class="form-control form-control-sm dd-input" alt="posisi Y">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="p-1" style="border-top: 1px dotted rgb(130, 130, 130);"></div>
+
+                    <div class="form-group pb-1">
+                        <div class="row">
+                            <div class="col-md-6 mb-1">
+                                <b>Longitude</b><br>
+                                <div class="row">
+                                    <div class="col-md-3" style="padding-right:2px">
+                                        Degree<br>
+                                        <input id="md1_1" disabled value="117" type="text" class="form-control form-control-sm dms-input" alt="posisi X">
+                                    </div>
+                                    <div class="col-md-3" style="padding-left:2px;padding-right:2px">
+                                        Minute<br>
+                                        <input id="md1_2" disabled value="2" type="text" class="form-control form-control-sm dms-input" alt="posisi X">
+                                    </div>
+                                    <div class="col-md-3" style="padding-left:2px;padding-right:2px">
+                                        Second<br>
+                                        <input id="md1_3" disabled value="24" type="text" class="form-control form-control-sm dms-input" alt="posisi X">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6 mb-1">
+                                <b>Latitude</b><br>
+                                <div class="row">
+                                    <div class="col-md-3" style="padding-right:2px">
+                                        Degree<br>
+                                        <input id="md2_1" disabled value="-1" type="text" class="form-control form-control-sm dms-input" alt="posisi Y">
+                                    </div>
+                                    <div class="col-md-3" style="padding-left:2px;padding-right:2px">
+                                        Minute<br>
+                                        <input id="md2_2" disabled value="10" type="text" class="form-control form-control-sm dms-input" alt="posisi Y">
+                                    </div>
+                                    <div class="col-md-3" style="padding-left:2px;padding-right:2px">
+                                        Second<br>
+                                        <input id="md2_3" disabled value="32" type="text" class="form-control form-control-sm dms-input" alt="posisi Y">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+
+    // Function to add a new coordinate
+    function tambahKoordinat() {
+        coordinateCount++;
+        $('#jumlahCounterK').html(coordinateCount);
+        $('#hapusKoordinat').prop('disabled', false);
+        // Create a new input row for coordinates
+        const coordinateDiv = document.createElement('div');
+        coordinateDiv.classList.add('coordinate-field', 'mb-2');
+        coordinateDiv.innerHTML = newFieldInput;
+        document.getElementById('coordinateInput').appendChild(coordinateDiv);
+        updateInputState();
+        if (coordinateCount >= maxCoordinates) {
+            $('#tambahKoordinat').prop('disabled', true);
+        }
+    }
+
+    // Function to remove the last coordinate
+    function hapusKoordinat() {
+        coordinateCount--;
+        $('#jumlahCounterK').html(coordinateCount);
+        if (coordinateCount === 1) {
+            $('#hapus_koordinat').prop('disabled', true);
+        }
+        $('.coordinate-field:last').remove();
+    }
+
+    // Function to reset the coordinates form
+    function resetKoordinat() {
+        const parent = document.getElementById('coordinateInput');
+        parent.innerHTML = newFieldInput;
+        coordinateCount = 1;
+        document.getElementById('jumlahCounterK').innerText = coordinateCount;
+        updateInputState();
+    }
+
+    function updateInputState() {
+        if ($('#coord_dd').is(":checked")) {
+            $(".dd-input").prop("disabled", false);
+            $(".dms-input").prop("disabled", true);
+        } else {
+            $(".dd-input").prop("disabled", true);
+            $(".dms-input").prop("disabled", false);
+        }
+    }
+
+    // Definisikan style
+    const pointStyle = new Style({
+        image: new CircleStyle({
+            radius: 6,
+            fill: new Fill({
+                color: 'red'
+            }),
+            stroke: new Stroke({
+                color: 'white',
+                width: 2
+            })
+        })
+    });
+
+    const lineStyle = new Style({
+        stroke: new Stroke({
+            color: 'blue',
+            width: 3
+        })
+    });
+
+    const polygonStyle = new Style({
+        stroke: new Stroke({
+            color: 'green',
+            width: 2
+        }),
+        fill: new Fill({
+            color: 'rgba(0, 255, 0, 0.3)'
+        })
+    });
+
+    // Fungsi untuk memilih style berdasarkan tipe geometry
+    const getStyle = (feature) => {
+        const type = feature.getGeometry().getType();
+        const styles = {
+            'Point': pointStyle,
+            'LineString': lineStyle,
+            'Polygon': polygonStyle
+        };
+        return styles[type] || null;
+    };
+
+    // Sumber dan layer vector
+    let vectorSource = new VectorSource();
+    let vectorLayer = new VectorLayer({
+        source: vectorSource,
+        style: getStyle
+    });
+    map.addLayer(vectorLayer);
+
+    let dataType, jsonCoordinatesInput, geometryData, geojsonFeature, geojsonData;
+    $("#nextStep").click(function(e) {
+        e.preventDefault();
+        vectorSource.clear(); // Hapus data sebelumnya
+
+        jsonCoordinatesInput = [];
+        geometryData = [];
+        geojsonFeature = [];
+        geojsonData = [];
+        const selectedCounter = coordinateCount;
+        dataType = $("input[name='dataType']:checked").val();
+        // Ambil nilai koordinat
+        $('.coordinate-field').each(function() {
+            if ($("#coord_dms").is(":checked")) {
+                let degree1 = $(this).find('#md1_1').val();
+                let minute1 = $(this).find('#md1_2').val();
+                let second1 = $(this).find('#md1_3').val();
+                let degree2 = $(this).find('#md2_1').val();
+                let minute2 = $(this).find('#md2_2').val();
+                let second2 = $(this).find('#md2_3').val();
+
+                if (degree1 == '') degree1 = '0';
+                if (minute1 == '') minute1 = '0';
+                if (second1 == '') second1 = '0';
+                if (minute1 < 0) minute1 = -minute1;
+                if (second1 < 0) second1 = -second1;
+                if (degree1 < 0 || degree1 == '-0') {
+                    minute1 = -minute1;
+                    second1 = -second1;
+                }
+                if (degree2 == '') degree2 = '0';
+                if (minute2 == '') minute2 = '0';
+                if (second2 == '') second2 = '0';
+                if (minute2 < 0) minute2 = -minute2;
+                if (second2 < 0) second2 = -second2;
+                if (degree2 < 0 || degree2 == '-0') {
+                    minute2 = -minute2;
+                    second2 = -second2;
+                }
+
+                let longitude = parseFloat(degree1) + parseFloat((minute1) / 60) + parseFloat((second1) / 3600);
+                let latitude = parseFloat(degree2) + parseFloat((minute2) / 60) + parseFloat((second2) / 3600);
+                jsonCoordinatesInput.push([longitude, latitude]);
+            } else {
+                const longitudeInput = parseFloat($(this).find('#tx_x').val());
+                const latitudeInput = parseFloat($(this).find('#tx_y').val());
+                jsonCoordinatesInput.push([longitudeInput, latitudeInput]);
+            }
+        });
+        console.log(jsonCoordinatesInput);
+        if (dataType == 'POINT') {
+            jsonCoordinatesInput.map((item) => {
+                var geometry = {
+                    type: "Point",
+                    coordinates: item
+                };
+                geometryData.push(geometry);
+                var feature = turf.feature(geometry);
+                geojsonFeature.push(feature);
+            })
+            var collection = turf.featureCollection(geojsonFeature);
+            geojsonData.push(collection);
+        } else if (dataType == 'LINESTRING') {
+            if (jsonCoordinatesInput.length < 2) {
+                alert('Minimal 2 koordinat');
+                return false;
+            }
+            var geometry = {
+                type: "LineString",
+                coordinates: jsonCoordinatesInput
+            };
+            var feature = turf.feature(geometry);
+            var collection = turf.featureCollection([feature]);
+            geometryData.push(geometry);
+            geojsonFeature.push(feature);
+            geojsonData.push(collection);
+        } else if (dataType == 'POLYGON') {
+            if (jsonCoordinatesInput.length < 3) {
+                alert('Minimal 3 koordinat');
+                return false;
+            }
+            jsonCoordinatesInput.push(jsonCoordinatesInput[0]);
+            var geometry = {
+                type: "Polygon",
+                coordinates: [jsonCoordinatesInput]
+            };
+            var feature = turf.feature(geometry);
+            var collection = turf.featureCollection([feature]);
+            geometryData.push(geometry);
+            geojsonFeature.push(feature);
+            geojsonData.push(collection);
+        }
+        console.log(geojsonFeature);
+        console.log(geojsonData);
+
+        if (geojsonData.length > 0) {
+            const format = new GeoJSON();
+            geojsonData.forEach(data => {
+                const features = format.readFeatures(data, {
+                    featureProjection: 'EPSG:4326' // Proyeksi peta geografis
+                });
+                features.forEach(feature => {
+                    const geometry = feature.getGeometry();
+                    geometry.transform('EPSG:4326', 'EPSG:3857');
+                });
+                vectorSource.addFeatures(features);
+            });
+
+            if (vectorSource.getFeatures().length > 0) {
+                const extent = vectorSource.getExtent();
+                map.getView().fit(extent, {
+                    duration: 1000,
+                    padding: [100, 100, 100, 100],
+                    minResolution: map.getView().getResolutionForZoom(17),
+                });
+            }
+        }
+    });
 </script>
 <?php $this->endSection() ?>
 
