@@ -35,6 +35,7 @@
     <!-- Vendor CSS Files -->
     <link href="<?= base_url('assets/vendor/bootstrap/css/bootstrap.min.css') ?>" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link href=" https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.7.1/nouislider.css " rel="stylesheet">
 
     <!-- Template Main CSS File -->
     <link href="<?= base_url('assets/css/main_general.css') ?>" rel="stylesheet">
@@ -102,106 +103,9 @@
             z-index: 10;
         }
 
-        .layer-panel {
-            position: fixed;
-            top: 90px;
-            left: 65px;
-            min-width: 200px;
-            max-width: 300px;
-            background: #fff;
-            padding: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            border-radius: 5px;
-            z-index: 10;
-            max-height: 32rem;
-            transition: transform 0.3s ease-in-out;
-            transform: translateX(-200%);
-        }
-
-        .layer-panel.show {
-            display: block;
-            transform: translateX(0);
-        }
-
-        .layer-panel-header,
-        .measurement-panel-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
         .close-btn {
             cursor: pointer;
             font-size: 24px;
-        }
-
-        .layer-panel-body {
-            margin-top: 8px;
-            padding: 6px;
-            max-height: 28rem;
-            overflow: auto;
-        }
-
-        .measurement-panel {
-            position: fixed;
-            top: 130px;
-            left: 65px;
-            background: #fff;
-            padding: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            border-radius: 5px;
-            z-index: 10;
-            transition: transform 0.3s ease-in-out;
-            transform: translateX(-200%);
-            max-height: 20rem;
-            overflow: hidden;
-        }
-
-        .measurement-panel.show {
-            display: block;
-            transform: translateX(0);
-        }
-
-        .cek-kesesuaian-panel {
-            position: fixed;
-            top: 90px;
-            right: 15px;
-            min-width: 200px;
-            max-width: 35rem;
-            background: #fff;
-            padding: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            border-radius: 5px;
-            z-index: 10;
-            max-height: 35rem;
-            transition: transform 0.3s ease-in-out;
-            /* transform: translateX(200%); */
-        }
-
-        .cek-kesesuaian-panel.show {
-            display: block;
-            transform: translateX(0);
-        }
-
-        .cek-kesesuaian-panel-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .cek-kesesuaian-panel-body {
-            font-size: 12px;
-            padding-top: 6px;
-            overflow-y: auto;
-            overflow-x: hidden;
-            max-height: 25rem;
-        }
-
-        .symbology kkprl-layer {
-            display: block;
-            font-size: 14px;
-            color: #000000;
-            padding-bottom: 1px;
         }
 
         .form-radio {
@@ -225,204 +129,8 @@
         <i class="bi bi-vector-pen" data-bs-toggle="tooltip" title="Draw"></i>
     </div>
 
-    <div class="layer-panel" id="layerPanel">
-        <div class="layer-panel-header">
-            <h6>Layers</h6>
-            <i class="bi bi-x close-btn" id="closeLayers"></i>
-        </div>
-        <div class="layer-panel-body">
-            <label class="symbology kkprl-layer" style="margin-left: 0px"><input type="checkbox" value="KKPRL:Sistem_Jaringan_Energi" style="transform: scale(1.4); margin-right: 6px; color: blue;" checked autocomplete="off" name="czona_15" id="czona_15" value=""><span style="min-width: 50px; background-image: url('/assets/img/mapSystem/icon/jar minyak.png'); ">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> Jaringan Minyak dan Gas Bumi</label>
-            <label class="symbology kkprl-layer" style="margin-left: 0px"><input type="checkbox" value="KKPRL:Sistem_Jaringan_Telekomunikasi" style="transform: scale(1.4); margin-right: 6px; color: blue;" checked autocomplete="off" name="czona_16" id="czona_16"><span style="min-width: 50px; background-image: url('/assets/img/mapSystem/icon/jar telekom.png'); ">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> Jaringan Telekomunikasi</label>
-            <label class="symbology kkprl-layer" style="margin-left: 0px"><input type="checkbox" value="KKPRL:Alur_Migrasi_Mamalia_Laut" style="transform: scale(1.4); margin-right: 6px; color: blue;" autocomplete="off" name="czona_17" id="czona_17"><span style="min-width: 50px; background-image: url('/assets/img/mapSystem/icon/mamaliaa.png'); ">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> Alur Migrasi Mamalia Laut</label>
-            <label class="symbology kkprl-layer" style="margin-left: 0px"><input type="checkbox" value="KKPRL:Alur_Migrasi_Penyu" style="transform: scale(1.4); margin-right: 6px; color: blue;" autocomplete="off" name="czona_18" id="czona_18"><span style="min-width: 50px; background-image: url('/assets/img/mapSystem/icon/penyu.png'); ">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> Alur Mingrasi Penyu</label>
-            <label class="symbology kkprl-layer" style="margin-left: 0px"><input type="checkbox" value="KKPRL:Alur_Pelayaran_Umum_dan_Perlintasan" style="transform: scale(1.4); margin-right: 6px; color: blue;" checked autocomplete="off" name="czona_19" id="czona_19"><span style="min-width: 50px; background-image: url('/assets/img/mapSystem/icon/pelayaran3.png'); ">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> Alur Pelayaran Umum dan Perlintasan</label>
-            <label class="symbology kkprl-layer" style="margin-left: 0px"><input type="checkbox" value="KKPRL:Lintas_Penyeberangan_Antarprovinsi" style="transform: scale(1.4); margin-right: 6px; color: blue;" checked autocomplete="off" name="czona_20" id="czona_20"><span style="min-width: 50px; background-image: url('/assets/img/mapSystem/icon/lintas.png'); ">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> Lintas Penyeberangan Antar Provinsi</label>
-            <label class="symbology kkprl-layer" style="margin-left: 0px"><input type="checkbox" value="KKPRL:Lintas_Penyeberangan_Antarkabupaten_Kota_dalam_Provinsi" style="transform: scale(1.4); margin-right: 6px; color: blue;" checked autocomplete="off" name="czona_21" id="czona_21"><span style="min-width: 50px; background-image: url('/assets/img/mapSystem/icon/lintas2.png'); ">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> Lintas Penyeberangan Antar Kabupaten/Kota dalam Provinsi</label>
 
-            <label class="symbology kkprl-layer" style="margin-left: 0px"><input type="checkbox" value="KKPRL:Kawasan_Konservasi_Lainnya" style="transform: scale(1.4); margin-right: 6px; color: blue;" autocomplete="off" name="czona_0" id="czona_0"><span style="min-width: 50px; background-image: url('/assets/img/mapSystem/icon/konservasi.png'); ">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> Kawasan Konservasi Lainnya</label>
-            <label class="symbology kkprl-layer" style="margin-left: 0px"><input type="checkbox" value="KKPRL:Kawasan_Konservasi_Maritim" style="transform: scale(1.4); margin-right: 6px; color: blue;" autocomplete="off" name="czona_1" id="czona_1"><span style="min-width: 50px; background-image: url('/assets/img/mapSystem/icon/kkm.png'); ">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> Kawasan Konservasi Maritim</label>
-            <label class="symbology kkprl-layer" style="margin-left: 0px"><input type="checkbox" value="KKPRL:Pencadangan_Indikasi_Kawasan_Konservasi	" style="transform: scale(1.4); margin-right: 6px; color: blue;" autocomplete="off" name="czona_2" id="czona_2"><span style="min-width: 50px; background-image: url('/assets/img/mapSystem/icon/konservasi2.png'); ">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> Pencadangan/Indikasi Kawasan Konservasi</label>
-            <label class="symbology kkprl-layer" style="margin-left: 0px"><input type="checkbox" value="KKPRL:Taman" style="transform: scale(1.4); margin-right: 6px; color: blue;" autocomplete="off" name="czona_3" id="czona_3"><span style="min-width: 50px; background-image: url('/assets/img/mapSystem/icon/taman.png'); ">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> Taman</label>
-            <label class="symbology kkprl-layer" style="margin-left: 0px"><input type="checkbox" value="KKPRL:Zona_Bandar_Udara" style="transform: scale(1.4); margin-right: 6px; color: blue;" autocomplete="off" name="czona_4" id="czona_4"><span style="min-width: 50px; background-image: url('/assets/img/mapSystem/icon/bandarudara.png'); ">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> Zona Bandar Udara</label>
-            <label class="symbology kkprl-layer" style="margin-left: 0px"><input type="checkbox" value="KKPRL:Zona_Industri" style="transform: scale(1.4); margin-right: 6px; color: blue;" autocomplete="off" name="czona_5" id="czona_5"><span style="min-width: 50px; background-image: url('/assets/img/mapSystem/icon/industri2.png'); ">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> Zona Industri</label>
-            <label class="symbology kkprl-layer" style="margin-left: 0px"><input type="checkbox" value="KKPRL:Zona_Pariwisata" style="transform: scale(1.4); margin-right: 6px; color: blue;" autocomplete="off" name="czona_6" id="czona_6"><span style="min-width: 50px; background-image: url('/assets/img/mapSystem/icon/wisata.png'); ">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> Zona Pariwisata</label>
-            <label class="symbology kkprl-layer" style="margin-left: 0px"><input type="checkbox" value="KKPRL:Zona_Pelabuhan_Perikanan" style="transform: scale(1.4); margin-right: 6px; color: blue;" autocomplete="off" name="czona_7" id="czona_7"><span style="min-width: 50px; background-image: url('/assets/img/mapSystem/icon/pelabuhan.png'); ">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> Zona Pelabuhan Perikanan</label>
-            <label class="symbology kkprl-layer" style="margin-left: 0px"><input type="checkbox" value="KKPRL:Zona_Pelabuhan_Umum" style="transform: scale(1.4); margin-right: 6px; color: blue;" checked autocomplete="off" name="czona_8" id="czona_8"><span style="min-width: 50px; background-image: url('/assets/img/mapSystem/icon/pelabuhan2.png'); ">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> Zona Pelabuhan Umum</label>
-            <label class="symbology kkprl-layer" style="margin-left: 0px"><input type="checkbox" value="KKPRL:Zona_Perdagangan_Barang_dan_atau_Jasa" style="transform: scale(1.4); margin-right: 6px; color: blue;" autocomplete="off" name="czona_9" id="czona_9"><span style="min-width: 50px; background-image: url('/assets/img/mapSystem/icon/dagangan.png'); ">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> Zona Perdagangan Barang dan/atau Jasa</label>
-            <label class="symbology kkprl-layer" style="margin-left: 0px"><input type="checkbox" value="KKPRL:Zona_Perikanan_Budi_Daya" style="transform: scale(1.4); margin-right: 6px; color: blue;" autocomplete="off" name="czona_10" id="czona_10"><span style="min-width: 50px; background-image: url('/assets/img/mapSystem/icon/budidayalaut.png'); ">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> Zona Perikanan Budi Daya</label>
-            <label class="symbology kkprl-layer" style="margin-left: 0px"><input type="checkbox" value="KKPRL:Zona_Perikanan_Tangkap" style="transform: scale(1.4); margin-right: 6px; color: blue;" autocomplete="off" name="czona_11" id="czona_11"><span style="min-width: 50px; background-image: url('/assets/img/mapSystem/icon/tangkap.png'); ">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> Zona Perikanan Tangkap</label>
-            <label class="symbology kkprl-layer" style="margin-left: 0px"><input type="checkbox" value="KKPRL:Zona_Permukiman" style="transform: scale(1.4); margin-right: 6px; color: blue;" autocomplete="off" name="czona_12" id="czona_12"><span style="min-width: 50px; background-image: url('/assets/img/mapSystem/icon/permukiman.png'); ">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> Zona Permukiman</label>
-            <label class="symbology kkprl-layer" style="margin-left: 0px"><input type="checkbox" value="KKPRL:Zona_Pertahanan_dan_Keamanan" style="transform: scale(1.4); margin-right: 6px; color: blue;" autocomplete="off" name="czona_13" id="czona_13"><span style="min-width: 50px; background-image: url('/assets/img/mapSystem/icon/pertahanan.png'); ">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> Zona Pertahanan dan Keamanan</label>
-            <label class="symbology kkprl-layer" style="margin-left: 0px"><input type="checkbox" value="KKPRL:Zona_Pertambangan_Minyak_dan_Gas_Bumi" style="transform: scale(1.4); margin-right: 6px; color: blue;" autocomplete="off" name="czona_14" id="czona_14"><span style="min-width: 50px; background-image: url('/assets/img/mapSystem/icon/zona tambangan.png'); ">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> Zona Pertambangan Minyak dan Gas Bumi</label>
-        </div>
-    </div>
-
-    <div class="measurement-panel" id="measurementPanel">
-        <div class="measurement-panel-header">
-            <h6>Measurement Tools</h6>
-            <i class="bi bi-x close-btn" id="closeMeasurement"></i>
-        </div>
-        <div>
-            <button class="btn btn-sm btn-outline-primary" id="measureDistance">Measure Distance</button>
-            <button class="btn btn-sm btn-outline-primary" id="measureArea">Measure Area</button>
-        </div>
-    </div>
-
-    <div class="cek-kesesuaian-panel" id="cekKesesuaianPanel">
-        <div class="cek-kesesuaian-panel-header">
-            <h6>Cek Kesesuaian</h6>
-            <i class="bi bi-x close-btn" id="closeCekKesesuaian"></i>
-        </div>
-
-        <div class="cek-kesesuaian-panel-body px-1">
-            <!-- CHOSE TYPE -->
-            <div class="type-input pb-1">
-                <label class="mb-2">Berdasar :</label>
-
-                <!-- Format Selection -->
-                <div class="row mb-2">
-                    <div class="col-auto">
-                        <div class="form-check">
-                            <input class="form-check-input form-radio" type="radio" name="coordinateType" id="coord_file">
-                            <label class="form-check-label" for="coord_file">Dengan File</label>
-                        </div>
-                    </div>
-                    <div class="col-auto">
-                        <div class="form-check">
-                            <input class="form-check-input form-radio" type="radio" name="coordinateType" id="coord_dd" checked>
-                            <label class="form-check-label" for="coord_dd">Degree Decimal</label>
-                        </div>
-                    </div>
-                    <div class="col-auto">
-                        <div class="form-check">
-                            <input class="form-check-input form-radio" type="radio" name="coordinateType" id="coord_dms">
-                            <label class="form-check-label" for="coord_dms">Degree Minute Second</label>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- FORM INPUT FILE -->
-            <div class="input-by-file d-none col-auto">
-                <div class="mb-2">
-                    <input type="file" class="form-control form-control-sm file-input" name="inputByFile" id="inputByFile"
-                        accept=".zip,.kmz,.topojson,.xlsx,.xls,.csv" aria-describedby="fileHelpId">
-                    <div id="fileHelpId" class="form-text mt-1">Pilih file csv, xlsx, shp(zip), kml</div>
-                </div>
-            </div>
-            <div id="errorSHP" class="fs-6 text-danger"></div>
-            <div id="loadFile"></div>
-
-
-            <!-- BODY FORM INPUT COORDINATE -->
-            <div class="coordinate-field-form">
-                <!-- CHOOSE DATA TYPE -->
-                <label class="mb-2">Tipe Data: </label>
-                <div class="row">
-                    <div class="col-auto">
-                        <div class="form-check">
-                            <input class="form-check-input form-radio" type="radio" name="dataType" id="point_type" value="POINT" checked>
-                            <label class="form-check-label" for="point_type">Point</label>
-                        </div>
-                    </div>
-                    <div class="col-auto">
-                        <div class="form-check">
-                            <input class="form-check-input form-radio" type="radio" name="dataType" id="line_type" value="LINESTRING">
-                            <label class="form-check-label" for="line_type">Line</label>
-                        </div>
-                    </div>
-                    <div class="col-auto">
-                        <div class="form-check">
-                            <input class="form-check-input form-radio" type="radio" name="dataType" id="polygon_type" value="POLYGON">
-                            <label class="form-check-label" for="polygon_type">Polygon</label>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- MAINFORM INPUT COORDINATE -->
-                <div class="coordinate-field" id="coordinateInput">
-                    <!-- First Coordinate Input -->
-                    <div class="form-group mb-1 pb-1">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <b>Longitude</b><br>
-                                <input id="tx_x" value="117.040" type="text" class="form-control form-control-sm dd-input" alt="posisi X">
-                            </div>
-
-                            <div class="col-md-6">
-                                <b>Latitude</b><br>
-                                <input id="tx_y" value="-1.175" type="text" class="form-control form-control-sm dd-input" alt="posisi Y">
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="p-1" style="border-top: 1px dotted rgb(130, 130, 130);"></div>
-
-                    <div class="form-group pb-1">
-                        <div class="row">
-                            <div class="col-md-6 mb-1">
-                                <b>Longitude</b><br>
-                                <div class="row">
-                                    <div class="col-md-3" style="padding-right:2px">
-                                        Degree<br>
-                                        <input id="md1_1" disabled value="117" type="text" class="form-control form-control-sm dms-input" alt="posisi X">
-                                    </div>
-                                    <div class="col-md-3" style="padding-left:2px;padding-right:2px">
-                                        Minute<br>
-                                        <input id="md1_2" disabled value="2" type="text" class="form-control form-control-sm dms-input" alt="posisi X">
-                                    </div>
-                                    <div class="col-md-3" style="padding-left:2px;padding-right:2px">
-                                        Second<br>
-                                        <input id="md1_3" disabled value="24" type="text" class="form-control form-control-sm dms-input" alt="posisi X">
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="col-md-6 mb-1">
-                                <b>Latitude</b><br>
-                                <div class="row">
-                                    <div class="col-md-3" style="padding-right:2px">
-                                        Degree<br>
-                                        <input id="md2_1" disabled value="-1" type="text" class="form-control form-control-sm dms-input" alt="posisi Y">
-                                    </div>
-                                    <div class="col-md-3" style="padding-left:2px;padding-right:2px">
-                                        Minute<br>
-                                        <input id="md2_2" disabled value="10" type="text" class="form-control form-control-sm dms-input" alt="posisi Y">
-                                    </div>
-                                    <div class="col-md-3" style="padding-left:2px;padding-right:2px">
-                                        Second<br>
-                                        <input id="md2_3" disabled value="32" type="text" class="form-control form-control-sm dms-input" alt="posisi Y">
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div>
-            <div id="coordinateToogle">
-                <div class="pb-1">
-                    <span class="small">Jumlah Titik: <span id="jumlahCounterK">1</span></span>
-                </div>
-                <div class="d-flex align-items-center gap-1">
-                    <button type="button" class="btn btn-sm btn-outline-dark" id="resetKoordinat" onclick="resetKoordinat()">Reset</button>
-                    <button type="button" class="btn btn-sm btn-outline-dark" id="hapusKoordinat" disabled="true" onclick="hapusKoordinat()">- Hapus Titik</button>
-                    <button type="button" class="btn btn-sm btn-outline-dark" id="tambahKoordinat" onclick="tambahKoordinat()">+ Tambah Titik</button>
-                </div>
-            </div>
-
-            <div class="float-end">
-                <button type="button" class="btn btn-sm btn-primary m-2 d-none" id="nextStepByFile">Lanjut</button>
-                <button type="button" class="btn btn-sm btn-primary m-2" id="nextStep">Lanjut</button>
-            </div>
-        </div>
-    </div>
-    </div>
-
-
-    <main class=" main-content">
+    <main class="main-content">
         <div class="map-container">
             <!-- Content -->
             <?= $this->renderSection('content') ?>
@@ -461,7 +169,9 @@
         var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
         var tooltipList = tooltipTriggerList.map(function(tooltipTriggerEl) {
             return new bootstrap.Tooltip(tooltipTriggerEl)
-        })
+        });
+
+        const loaderSpinner = `<div class="text-center text-primary"><span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span></>`;
 
         /**
          * Creates a panel toggle handler with the given configuration.
@@ -564,8 +274,6 @@
         // 1. Pastikan jQuery sudah di-include sebelum script ini
         // 2. Struktur HTML harus memiliki id yang sesuai dengan konfigurasi
         // 3. Gunakan kelas 'show' untuk menampilkan/menyembunyikan panel
-
-        const loaderSpinner = `<div class="text-center"><span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span></>`;
     </script>
 
     <?= $this->renderSection('javascript') ?>
