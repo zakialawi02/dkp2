@@ -9,7 +9,7 @@ Dashboard
 <?php $this->endSection() ?>
 
 <?php $this->section('css') ?>
-<link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.11.0/dist/sweetalert2.min.css" rel="stylesheet">
+
 <?php $this->endSection() ?>
 
 <?php $this->section('content') ?>
@@ -114,7 +114,6 @@ Dashboard
 
 
 <?php $this->section('javascript') ?>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.11.0/dist/sweetalert2.all.min.js"></script>
 
 <script>
     $(document).ready(function() {

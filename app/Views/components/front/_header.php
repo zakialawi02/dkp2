@@ -25,7 +25,7 @@
                     <a class="nav-link" href="/kontak">Kontak</a>
                 </li>
             </ul>
-            <div class="ms-lg-3">
+            <div class="ms-lg-3 pb-md-0 pb-3">
                 <?php if (logged_in()): ?>
                     <a href="/dashboard" class="btn btn-outline-primary fw-bold">Dashboard</a>
                     <a href="<?= base_url('logout'); ?>" class="btn btn-outline-danger fw-bold">Log out</a>

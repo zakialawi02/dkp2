@@ -556,6 +556,21 @@ section,
     color: color-mix(in srgb, var(--primary-color), transparent 20%);
 }
 
+.title-data {
+    background-image: linear-gradient(rgba(21, 21, 21, 0.276), rgba(17, 17, 17, 0.373)), url(/assets/img/hero.webp);
+    background-size: cover;
+    background-position: center;
+    width: 100%;
+    height: 20vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.text-white {
+    color: #fff !important;
+}
+
 @media (max-width: 768px) {
     .hero h2 {
         font-size: 32px;

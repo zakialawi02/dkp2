@@ -100,6 +100,21 @@
     </div>
 </section>
 <!-- discover End -->
+
+<!-- About Segment -->
+<section class="about pt-5" id="about" style="min-height: 20vh;">
+    <div class="container p-5 ">
+
+        <center class="">
+            <h2>Tentang Kami</h2>
+        </center>
+
+        <center class="">
+            <p>Aplikasi Simata Laut Kaltim (Sistem Informasi Tata Ruang Laut Kaltim) merupakan aplikasi yang dapat digunakan oleh masyarakat umum untuk memberikan akses Informasi Kesesuaian Kegiatan Pemanfaatan Ruang Laut di wilayah pesisir dan laut Provinsi Kalimantan Timur.</p>
+        </center>
+
+    </div>
+</section>
 <?php $this->section('javascript') ?>
 <!-- Code here -->
 <?php $this->endSection() ?>

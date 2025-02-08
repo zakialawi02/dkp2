@@ -24,6 +24,11 @@ $routes->group('dashboard', [], function ($routes) {
         $routes->get('permohonan/masuk', 'PermohonanController::permohonanMasuk', ['as' => 'admin.permohonan.masuk']);
 
         $routes->get('modul', 'ModulController::index', ['as' => 'admin.modul.index']);
+        $routes->get('modul/create', 'ModulController::create', ['as' => 'admin.modul.create']);
+        $routes->post('modul/store', 'ModulController::store', ['as' => 'admin.modul.store']);
+        $routes->get('modul/edit/(:segment)', 'ModulController::edit/$1', ['as' => 'admin.modul.edit']);
+        $routes->match(['post', 'put'], 'modul/update/(:segment)', 'ModulController::update/$1', ['as' => 'admin.modul.update']);
+        $routes->delete('modul/delete/(:segment)', 'ModulController::destroy/$1', ['as' => 'admin.modul.destroy']);
 
         $routes->group('setting', [], function ($routes) {
             $routes->get('view-peta', 'SettingController::viewPeta', ['as' => 'admin.setting.viewPeta']);
@@ -56,3 +61,4 @@ $routes->group('dashboard', [], function ($routes) {
 
 
 $routes->get('/peta', 'KesesuaianController::petaKesesuaian', ['as' => 'petaKesesuaian']);
+$routes->get('/data/modul', 'ModulController::indexFront', ['as' => 'modul.index']);
