@@ -165,6 +165,47 @@
         border: 2px solid red;
     }
 
+    .ol-tooltip {
+        position: relative;
+        background: rgba(0, 0, 0, 0.5);
+        border-radius: 4px;
+        color: white;
+        padding: 4px 8px;
+        opacity: 0.7;
+        white-space: nowrap;
+        font-size: 12px;
+        cursor: default;
+        user-select: none;
+    }
+
+    .ol-tooltip-measure {
+        opacity: 1;
+        font-weight: bold;
+    }
+
+    .ol-tooltip-static {
+        background-color: #ffcc33;
+        color: black;
+        border: 1px solid white;
+    }
+
+    .ol-tooltip-measure:before,
+    .ol-tooltip-static:before {
+        border-top: 6px solid rgba(0, 0, 0, 0.5);
+        border-right: 6px solid transparent;
+        border-left: 6px solid transparent;
+        content: "";
+        position: absolute;
+        bottom: -6px;
+        margin-left: -7px;
+        left: 50%;
+    }
+
+    .ol-tooltip-static:before {
+        border-top-color: #ffcc33;
+    }
+
+
     .basemap-switcher {
         position: absolute;
         bottom: 50px;
@@ -293,7 +334,7 @@
         z-index: 10;
         max-height: 35rem;
         transition: transform 0.3s ease-in-out;
-        /* transform: translateX(200%); */
+        transform: translateX(200%);
     }
 
     .cek-kesesuaian-panel.show {
@@ -371,6 +412,7 @@
     <div>
         <button class="btn btn-sm btn-outline-primary" id="measureDistance">Measure Distance</button>
         <button class="btn btn-sm btn-outline-primary" id="measureArea">Measure Area</button>
+        <button class="btn btn-sm btn-outline-danger" id="measureClear">clear</button>
     </div>
 </div>
 
@@ -406,8 +448,19 @@
                             <label class="form-check-label" for="coord_dms">Degree Minute Second</label>
                         </div>
                     </div>
+                    <div class="col-auto">
+                        <div class="form-check">
+                            <input class="form-check-input form-radio" type="radio" name="coordinateType" id="drawPolygon">
+                            <label class="form-check-label" for="drawPolygon">Gambar Polygon</label>
+                        </div>
+                    </div>
                 </div>
             </div>
+
+            <div class="d-none" id="drawPolygonField">
+                <button class="btn btn-sm btn-primary" id="drawPolygonBtn" role="button"><i class="bi bi-vector-pen"></i>&nbsp;&nbsp; gambar polygon</button>
+            </div>
+
 
             <!-- FORM INPUT FILE -->
             <div class="input-by-file d-none col-auto">
@@ -685,6 +738,7 @@
     // Daftarkan proyeksi jika SHP menggunakan proyeksi selain EPSG: 4326
     proj4.defs("EPSG:4326", "+proj=longlat +datum=WGS84 +no_defs"); // Jika EPSG:4326
     proj4.defs("EPSG:3857", "+proj=merc +lon_0=0 +k=1 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs"); // EPSG:3857
+    proj4.defs("EPSG:3975", "+proj=cea +R_A +lat_ts=30 +lon_0=0 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs +type=crs");
     proj4.defs("ESRI:54030", "+proj=robin +lon_0=0 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs +type=crs");
     proj4.defs("ESRI:53034", "+proj=cea +lat_ts=0 +lon_0=0 +x_0=0 +y_0=0 +R=6371000 +units=m +no_defs +type=crs");
     proj4.defs("ESRI:54034", "+proj=cea +lat_ts=0 +lon_0=0 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs +type=crs");
@@ -877,6 +931,7 @@
             mousePositionControl,
         ],
     });
+    map.getViewport().style.cursor = 'auto';
 
     function setBasemap(mapType, element = null) {
         document.getElementById('active-basemap').src = element?.nextElementSibling?.src ?? element?.querySelector('img')?.src;
@@ -1245,16 +1300,6 @@
         updateLocalStorage();
     }
 
-    $("#coord_file").click(function() {
-        $("#errorSHP").html("");
-        $(".dd-input").prop("disabled", true);
-        $(".dms-input").prop("disabled", true);
-        $('.coordinate-field-form').addClass('d-none');
-        $('#coordinateToogle').addClass('d-none');
-        $('.input-by-file').removeClass('d-none');
-        $('#nextStepByFile').removeClass('d-none');
-        $('#nextStep').addClass('d-none');
-    });
     $("#coord_dd").click(function() {
         $("#errorSHP").html("");
         $(".dd-input").prop("disabled", false);
@@ -1273,10 +1318,40 @@
         $('#coordinateToogle').removeClass('d-none');
         $('.input-by-file').addClass('d-none');
         $('#nextStepByFile').addClass('d-none');
+        $('#drawPolygonField').addClass('d-none');
         $('#nextStep').removeClass('d-none');
     });
+    $("#coord_file").click(function() {
+        $("#errorSHP").html("");
+        $(".dd-input").prop("disabled", true);
+        $(".dms-input").prop("disabled", true);
+        $('.coordinate-field-form').addClass('d-none');
+        $('#coordinateToogle').addClass('d-none');
+        $('.input-by-file').removeClass('d-none');
+        $('#nextStepByFile').removeClass('d-none');
+        $('#drawPolygonField').addClass('d-none');
+        $('#nextStep').addClass('d-none');
+    });
+    $("#drawPolygon").click(function() {
+        $("#errorSHP").html("");
+        $(".dd-input").prop("disabled", true);
+        $(".dms-input").prop("disabled", true);
+        $('.coordinate-field-form').addClass('d-none');
+        $('#coordinateToogle').addClass('d-none');
+        $('.input-by-file').addClass('d-none');
+        $('#nextStepByFile').addClass('d-none');
+        $("#drawPolygonField").removeClass('d-none');
+        $('#nextStep').addClass('d-none');
+    })
 
-    // Fungsi untuk mengonversi DMS ke Decimal Degrees (DD)
+    /**
+     * Function to convert DMS to Decimal Degrees (DD)
+     * @param {number} degrees - degrees of the coordinate
+     * @param {number} minutes - minutes of the coordinate
+     * @param {number} seconds - seconds of the coordinate
+     * @param {string} direction - direction of the coordinate (S, LS, BB)
+     * @returns {number} decimal degrees of the coordinate
+     */
     const dmsToDecimal = (degrees, minutes, seconds, direction) => {
         let decimal = degrees + minutes / 60 + seconds / 3600;
         if (direction === "S" || direction === "BB" || direction === "LS") {
@@ -1285,10 +1360,19 @@
         return decimal;
     };
 
-    // Variables to manage the number of coordinates
+    /**
+     ** Variables to manage the number of coordinates
+     ** This variable is used to store the number of coordinates that the user has input
+     ** The maximum number of coordinates that can be input is 10
+     */
     let coordinateCount = 1;
     const maxCoordinates = 10;
 
+    /**
+     * Variable to store the new field input for the coordinate form
+     * This variable is used to generate a new input field for the user to input the coordinates
+     * @type {string}
+     */
     const newFieldInput = `
                 <div class="form-group mb-1 pb-1">
                         <div class="row">
@@ -1348,8 +1432,14 @@
                 </div>
             `;
 
-
-    // Function to add a new coordinate
+    /**
+     * Function to add a new coordinate
+     * 
+     * This function adds a new row input for coordinates. It increments the coordinate count,
+     * updates the counter text, and enables the remove button. It also creates a new div
+     * element with the class 'coordinate-field' and appends it to the parent element.
+     * If the maximum number of coordinates is reached, it disables the add button.
+     */
     function tambahKoordinat() {
         coordinateCount++;
         $('#jumlahCounterK').html(coordinateCount);
@@ -1365,17 +1455,30 @@
         }
     }
 
-    // Function to remove the last coordinate
+    /**
+     * Removes the last coordinate input field.
+     *
+     * This function decreases the coordinate count and updates the counter display.
+     * It removes the last coordinate input field from the DOM. If only one coordinate
+     * remains, the remove button is disabled.
+     */
     function hapusKoordinat() {
         coordinateCount--;
         $('#jumlahCounterK').html(coordinateCount);
         if (coordinateCount === 1) {
-            $('#hapus_koordinat').prop('disabled', true);
+            $('#hapusKoordinat').prop('disabled', true);
         }
         $('.coordinate-field:last').remove();
     }
 
-    // Function to reset the coordinates form
+    /**
+     * Resets the coordinate form.
+     *
+     * This function resets the coordinate form to its initial state by removing all
+     * dynamically added coordinate input fields and setting the coordinate count to 1.
+     * It also updates the counter display and calls the updateInputState function to
+     * update the state of the input fields.
+     */
     function resetKoordinat() {
         const parent = document.getElementById('coordinateInput');
         parent.innerHTML = newFieldInput;
@@ -1384,6 +1487,13 @@
         updateInputState();
     }
 
+    /**
+     * Updates the state of the input fields based on the current selection.
+     *
+     * This function is called whenever the selection changes. It updates the state
+     * of the input fields (Decimal Degrees or Degree Minute Second) depending on
+     * the current selection.
+     */
     function updateInputState() {
         if ($('#coord_dd').is(":checked")) {
             $(".dd-input").prop("disabled", false);
@@ -1394,7 +1504,14 @@
         }
     }
 
-    // Style for different geometries
+    /**
+     * Style for different geometries
+     *
+     * This style defines the appearance of features in the map. It is used for
+     * points, lines and polygons.
+     *
+     * @type {Style}
+     */
     const pointStyle = new Style({
         image: new Icon({
             anchor: [0.5, 0.99],
@@ -1406,14 +1523,12 @@
             src: "./assets/img/mapSystem/icon/marker.svg",
         }),
     });
-
     const lineStyle = new Style({
         stroke: new Stroke({
             color: 'red',
             width: 3
         })
     });
-
     const polygonStyle = new Style({
         stroke: new Stroke({
             color: 'red',
@@ -1423,19 +1538,52 @@
             color: 'rgba(255, 0, 0, 0.3)'
         })
     });
+    const pointInDraw = new Style({
+        fill: new Fill({
+            color: 'rgba(255, 255, 255, 0.2)',
+        }),
+        stroke: new Stroke({
+            color: 'rgba(0, 0, 0, 0.5)',
+            lineDash: [10, 10],
+            width: 2,
+        }),
+        image: new CircleStyle({
+            radius: 5,
+            stroke: new Stroke({
+                color: 'rgba(0, 0, 0, 0.7)',
+            }),
+            fill: new Fill({
+                color: 'rgba(255, 255, 255, 0.2)',
+            }),
+        }),
+    });
 
-    // Function to choose the style based on geometry type
+    /**
+     * Function to choose the style based on geometry type.
+     * 
+     * @param {module:ol/Feature~Feature} feature The feature to get the style for.
+     * @return {module:ol/style/Style~Style} The style for the given feature.
+     */
     const getStyle = (feature) => {
         const type = feature.getGeometry().getType();
-        const styles = {
-            'Point': pointStyle,
-            'LineString': lineStyle,
-            'Polygon': polygonStyle
-        };
-        return styles[type] || null;
+        if (type == 'Point') {
+            if (drawingRunning) {
+                return pointInDraw;
+            }
+            return pointStyle;
+        } else if (type == 'LineString') {
+            return lineStyle;
+        } else if (type == 'Polygon') {
+            return polygonStyle;
+        }
+        return null;
     };
 
-    // Ubah style untuk semua fitur dari KML/KMZ
+    /**
+     * Changes the style of all features from KML/KMZ to the one defined in getStyle function.
+     * 
+     * @param {module:ol/Feature~Feature[]} features The array of features to change the style of.
+     */
     const styleKMLKMZ = (features) => {
         features.forEach((feature) => {
             feature.setStyle(getStyle(feature));
@@ -1443,16 +1591,193 @@
     };
 
 
-    // Sumber dan layer vector
+    /**
+     * Vector source for drawing.
+     * @type {VectorSource}
+     */
     let vectorSourceDraw = new VectorSource();
     let vectorLayerDraw = new VectorLayer({
         source: vectorSourceDraw,
         style: getStyle,
-        zIndex: 15
+        zIndex: 100
     });
     map.addLayer(vectorLayerDraw);
 
-    let dataType, jsonCoordinatesInput, geometryData, geojsonFeature, geojsonData;
+    /**
+     ** Variables used to store coordinate data and other properties needed for the drawing process
+     ** dataType: The type of data input (POINT, LINESTRING, POLYGON)
+     ** jsonCoordinatesInput: Array containing input coordinates from the form
+     ** geometryData: Array containing geometry data (featuresCollection) created from input coordinates
+     ** geojsonFeature: Array containing feature data created from geometryData
+     ** geojsonData: Array containing feature data created from geojsonFeature
+     ** geojsonArea: Area value if the input is a POLYGON
+     ** drawingRunning: Boolean value indicating if drawing is in progress
+     ** drawed: Boolean value indicating if drawing is completed
+     */
+    let dataType, jsonCoordinatesInput, geometryData, geojsonFeature, geojsonData, geojsonArea;
+    let drawingRunning = null;
+    let drawed;
+
+
+    /**
+     * store current drawing interaction
+     */
+    let draw;
+
+    /**
+     * Currently drawn feature.
+     * @type {import("../src/ol/Feature.js").default}
+     */
+    let sketch;
+
+    /**
+     * The help tooltip element.
+     * @type {HTMLElement}
+     */
+    let helpTooltipElement;
+
+    /**
+     * Overlay to show the help messages.
+     * @type {Overlay}
+     */
+    let helpTooltip;
+
+    /**
+     * The measure tooltip element.
+     * @type {HTMLElement}
+     */
+    let measureTooltipElement;
+
+    /**
+     * Overlay to show the measurement.
+     * @type {Overlay}
+     */
+    let measureTooltip;
+
+    /**
+     * Message to show when the user is drawing a polygon.
+     * @type {string}
+     */
+    const continuePolygonMsg = "Click to continue drawing the polygon";
+
+    /**
+     * Message to show when the user is drawing a line.
+     * @type {string}
+     */
+    const continueLineMsg = "Click to continue drawing the line";
+
+    /**
+     * Handle pointer move.
+     * @param {import("../src/ol/MapBrowserEvent").default} evt The event.
+     */
+    const pointerMoveHandler = function(evt) {
+        if (evt.dragging) {
+            return;
+        }
+        /** @type {string} */
+        let helpMsg = "Click to start drawing";
+
+        if (sketch) {
+            const geom = sketch.getGeometry();
+            if (geom instanceof Polygon) {
+                helpMsg = continuePolygonMsg;
+            } else if (geom instanceof LineString) {
+                helpMsg = continueLineMsg;
+            }
+        }
+
+        if (helpTooltipElement) {
+            helpTooltipElement.innerHTML = helpMsg;
+            helpTooltip.setPosition(evt.coordinate);
+            helpTooltipElement.classList.remove("hidden");
+        }
+    };
+    map.on("pointermove", pointerMoveHandler);
+
+    map.getViewport().addEventListener("mouseout", function() {
+        if (helpTooltipElement) {
+            helpTooltipElement.classList.add("hidden");
+        }
+    });
+
+    /**
+     * Format length output.
+     * @param {LineString} line The line.
+     * @return {string} The formatted length.
+     */
+    const formatLength = function(line) {
+        const length = getLength(line);
+        let output;
+        if (length > 100) {
+            output = Math.round((length / 1000) * 100) / 100 + " " + "km";
+        } else {
+            output = Math.round(length * 100) / 100 + " " + "m";
+        }
+        return output;
+    };
+
+    /**
+     * Format area output.
+     * @param {Polygon} polygon The polygon.
+     * @return {string} Formatted area.
+     */
+    const formatArea = function(polygon) {
+        const area = getArea(polygon);
+        let output;
+        if (area > 10000) {
+            output = Math.round((area / 10000) * 100) / 100 + " ha";
+        } else {
+            output = Math.round(area * 100) / 100 + " m²";
+        }
+        return output;
+    };
+
+    /**
+     * Creates a new help tooltip
+     * @returns {void}
+     */
+    function createHelpTooltip() {
+        if (helpTooltipElement) {
+            helpTooltipElement.remove();
+        }
+        helpTooltipElement = document.createElement("div");
+        helpTooltipElement.className = "ol-tooltip hidden";
+        helpTooltip = new Overlay({
+            element: helpTooltipElement,
+            offset: [15, 0],
+            positioning: "center-left",
+        });
+        map.addOverlay(helpTooltip);
+    }
+
+    /**
+     * Creates a new measure tooltip
+     * @returns {void}
+     */
+    function createMeasureTooltip() {
+        if (measureTooltipElement) {
+            measureTooltipElement.remove();
+        }
+        measureTooltipElement = document.createElement("div");
+        measureTooltipElement.className = "ol-tooltip ol-tooltip-measure";
+        measureTooltip = new Overlay({
+            element: measureTooltipElement,
+            offset: [0, -15],
+            positioning: "bottom-center",
+            stopEvent: false,
+            insertFirst: false,
+        });
+        map.addOverlay(measureTooltip);
+    }
+
+
+    /**
+     * Function to handle button "Lanjut" in the first step
+     * This function will be executed when the user clicks the "Lanjut" button in the first step
+     * It will clear the data from the draw source and get the coordinates from the input fields
+     * Then it will check the type of data (POINT, LINESTRING, POLYGON) and create the geojson feature accordingly
+     * Finally it will add the feature to the draw source and fit the map to the extent of the feature
+     */
     $("#nextStep").click(function(e) {
         e.preventDefault();
         vectorSourceDraw.clear(); // Hapus data sebelumnya
@@ -1578,7 +1903,10 @@
         $("#secondStep").addClass("d-none");
     });
 
-    // Fungsi untuk menangani file SHP dan menambahkannya ke peta
+    /**
+     * Function to handle SHP file and add it to the map
+     * @param {File} file SHP file to be processed
+     */
     const handleShpFile = (file) => {
         $("#loadFile").html(loaderSpinner);
         vectorSourceDraw.clear(); // Hapus data sebelumnya
@@ -1615,7 +1943,10 @@
         reader.readAsArrayBuffer(file);
     };
 
-    // Fungsi untuk menangani file XLSX dan mengubahnya ke GeoJSON
+    /**
+     * Handle XLSX file and convert it to GeoJSON
+     * @param {File} file XLSX file to be processed
+     */
     const handleXlsxFile = (file) => {
         $("#loadFile").html(loaderSpinner); // Tampilkan loaderSpinner
         vectorSourceDraw.clear();
@@ -1733,7 +2064,11 @@
         reader.readAsArrayBuffer(file);
     };
 
-    // Fungsi untuk membaca file KML/KMZ
+    /**
+     * Read a KML/KMZ file and display it on the map.
+     *
+     * @param {File} file The file to read.
+     */
     const handleKmlFile = (file) => {
         $("#loadFile").html(loaderSpinner);
         vectorSourceDraw.clear();
@@ -1772,6 +2107,11 @@
         };
         reader.readAsText(file);
     };
+    /**
+     * Read a KMZ file and display it on the map.
+     *
+     * @param {File} file The file to read.
+     */
     const handleKmzFile = (file) => {
         const reader = new FileReader();
         reader.onload = function(event) {
@@ -1803,7 +2143,6 @@
         reader.readAsArrayBuffer(file);
     };
 
-
     // Event listener untuk memilih file
     $("#inputByFile").change(function(e) {
         e.preventDefault();
@@ -1832,7 +2171,205 @@
         // Menampilkan log data GeoJSON setelah tombol diklik
         console.log("Data GeoJSON yang dimuat pada klik Lanjut:", geojsonData[0]);
     });
+
+
+    let listener;
+    /**
+     * Adds a draw interaction to the map for drawing in map.
+     * @param {string} [type="Polygon"] The type of geometry to draw. Can be "Polygon" or "LineString".
+     * @returns {void}
+     */
+    function addInteraction(type = "Polygon") {
+        // Remove previous draw layer and tooltips if any
+        if (vectorLayerDraw) {
+            map.removeLayer(vectorLayerDraw);
+        }
+
+        // Clear the vector source to remove any existing features
+        vectorSourceDraw.clear();
+        geojsonData = [];
+
+        // Remove previous tooltips from the DOM if they exist
+        if (measureTooltipElement) {
+            measureTooltipElement.remove(); // Remove tooltip element from DOM
+        }
+
+        // Remove the tooltip overlay from the map if it exists
+        if (measureTooltip) {
+            map.removeOverlay(measureTooltip); // Remove the overlay from the map
+        }
+
+        // Remove previous help tooltip if any
+        if (helpTooltipElement) {
+            helpTooltipElement.remove();
+        }
+
+        // Create the vector layer for drawing
+        vectorLayerDraw = new VectorLayer({
+            source: vectorSourceDraw,
+            style: getStyle,
+            zIndex: 999,
+        });
+        map.addLayer(vectorLayerDraw);
+
+        // Create a new draw interaction
+        draw = new Draw({
+            source: vectorSourceDraw,
+            type: type,
+            style: getStyle,
+        });
+
+        // Add the new draw interaction to the map
+        map.addInteraction(draw);
+
+        createMeasureTooltip();
+        createHelpTooltip();
+
+        draw.on('drawstart', function(evt) {
+            // set sketch
+            sketch = evt.feature;
+
+            /** @type {import("../src/ol/coordinate.js").Coordinate|undefined} */
+            let tooltipCoord = evt.coordinate;
+
+            listener = sketch.getGeometry().on('change', function(evt) {
+                const geom = evt.target;
+                let output;
+                if (geom instanceof Polygon) {
+                    output = formatArea(geom);
+                    tooltipCoord = geom.getInteriorPoint().getCoordinates();
+                } else if (geom instanceof LineString) {
+                    output = formatLength(geom);
+                    tooltipCoord = geom.getLastCoordinate();
+                }
+                measureTooltipElement.innerHTML = output;
+                measureTooltip.setPosition(tooltipCoord);
+            });
+        });
+
+        draw.on("drawend", function(evt) {
+            drawed = true;
+
+            // Get the feature drawn by the user
+            const feature = evt.feature;
+
+            // Convert the feature to GeoJSON
+            const geojsonFormat = new GeoJSON();
+            const geojson = geojsonFormat.writeFeature(feature, {
+                dataProjection: "EPSG:4326", // Output projection
+                featureProjection: "EPSG:3857", // Map's projection (assuming EPSG:3857)
+            });
+            geojsonFeature = JSON.parse(geojson);
+            let featureCollection = {
+                type: "FeatureCollection",
+                features: [geojsonFeature]
+            }
+            geojsonData.push(featureCollection);
+
+            drawingEnd();
+        });
+    }
+
+    /**
+     * Start the draw interaction and clear the vector layer if exists
+     * @returns {void}
+     */
+    function drawingStart() {
+        addInteraction();
+        drawingRunning = true;
+        drawed = null;
+        buttonStateDrawing();
+        map.getViewport().style.cursor = 'crosshair';
+    }
+
+    /**
+     * End the draw interaction
+     * @returns {void}
+     */
+    function drawingEnd() {
+        drawingRunning = false;
+        map.getViewport().style.cursor = 'grab';
+        // Remove the measurement tooltip overlay from the map
+        if (measureTooltip) {
+            map.removeOverlay(measureTooltip);
+        }
+
+        measureTooltipElement.className = "ol-tooltip ol-tooltip-static";
+        measureTooltip.setOffset([0, -7]);
+        // unset sketch
+        sketch = null;
+        // unset tooltip so that a new one can be created
+        measureTooltipElement = null;
+        createMeasureTooltip();
+
+        // Remove tooltips and overlays
+        if (measureTooltipElement) {
+            measureTooltipElement.remove();
+        }
+        if (helpTooltipElement) {
+            helpTooltipElement.remove();
+        }
+
+        // Remove the draw interaction and vector layer after drawing is done
+        map.removeInteraction(draw);
+
+        // Unset the listener to avoid memory leaks
+        unByKey(listener);
+
+        buttonStateDrawing();
+
+        if (geojsonData.length > 0) {
+            $("#firstStep").addClass("d-none");
+            $("#secondStep").removeClass("d-none");
+        }
+    }
+
+    /**
+     * Update the draw button state and text based on the value of drawingRunning
+     * @returns {void}
+     */
+    function buttonStateDrawing() {
+        $("#drawPolygonBtn").html(
+            drawingRunning ?
+            "Batal" :
+            "<i class='bi bi-vector-pen'></i>&nbsp;&nbsp; gambar polygon"
+        );
+        $("#drawPolygonBtn")
+            .removeClass()
+            .addClass(drawingRunning ? "btn btn-sm btn-danger" : "btn btn-sm btn-primary");
+    }
+
+    // Button to start/cancel the draw/measurement
+    /**
+     * Handles the button click event to start/cancel the draw/measurement interaction.
+     * If the interaction is already running, it cancels the interaction.
+     * If the interaction is not running, it starts the interaction.
+     * @param {Event} e - The event object.
+     */
+    $("#drawPolygonBtn").click(function(e) {
+        if (drawingRunning) {
+            drawingEnd();
+        } else {
+            drawingStart();
+        }
+    });
+
+    /**
+     * Event listener for the Measure Area and Measure Distance buttons.
+     * When the buttons are clicked, the measureStart function is called with the appropriate type.
+     * @param {Event} e - The event object.
+     */
+    $("#measureArea").click(function(e) {
+        measureStart("Polygon");
+    })
+    $("#measureDistance").click(function(e) {
+        measureStart("LineString");
+    })
+    $("#measureClear").click(function(e) {
+        measureClear()
+    })
 </script>
+<script src="<?= base_url('assets/js/measureOpenLayers.js') ?>"></script>
 <?php $this->endSection() ?>
 
 <?php $this->endSection() ?>

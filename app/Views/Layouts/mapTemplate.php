@@ -125,8 +125,6 @@
         <i class="bi bi-layers" id="toggleLayers" data-bs-toggle="tooltip" title="Layers"></i>
         <i class="bi bi-rulers" id="toggleMeasurement" data-bs-toggle="tooltip" title="Measurement"></i>
         <i class="bi bi-geo" id="toggleCekKesesuaian" data-bs-toggle="tooltip" title="Cek Kesesuaian"></i>
-        <i class="bi bi-geo-alt" data-bs-toggle="tooltip" title="Location"></i>
-        <i class="bi bi-vector-pen" data-bs-toggle="tooltip" title="Draw"></i>
     </div>
 
 
