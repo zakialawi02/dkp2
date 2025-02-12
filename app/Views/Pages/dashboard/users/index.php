@@ -19,10 +19,10 @@ Dashboard
 <div class="card p-3">
 
     <div class="d-flex justify-content-end align-items-center mb-3 px-2">
-        <button class="btn btn-primary" id="createNewUser" data-bs-toggle="modal" data-bs-target="#userModal" type="button"> Add User </button>
+        <button class="btn btn-sm btn-primary" id="createNewUser" data-bs-toggle="modal" data-bs-target="#userModal" type="button"> Add User </button>
     </div>
 
-    <div class="table-responsive">
+    <div class="">
         <table class="table-hover table-striped table" id="myTable" style="width:100%">
             <thead>
                 <tr>

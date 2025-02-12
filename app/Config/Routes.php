@@ -19,9 +19,12 @@ $routes->group('dashboard', [], function ($routes) {
         $routes->match(['post', 'put'], 'users/update/(:segment)', 'UserController::update/$1', ['as' => 'admin.users.update']);
         $routes->delete('users/delete/(:segment)', 'UserController::destroy/$1', ['as' => 'admin.users.destroy']);
 
-        $routes->get('permohonan/disetujui', 'PermohonanController::permohonanDisetujui', ['as' => 'admin.permohonan.disetujui']);
-        $routes->get('permohonan/tidak-disetujui', 'PermohonanController::permohonanTidakDisetujui', ['as' => 'admin.permohonan.tidakDisetujui']);
-        $routes->get('permohonan/masuk', 'PermohonanController::permohonanMasuk', ['as' => 'admin.permohonan.masuk']);
+        $routes->get('data/permohonan/disetujui', 'PermohonanController::permohonanDisetujui', ['as' => 'admin.permohonan.disetujui']);
+        $routes->get('data/permohonan/disetujui-dengan-lampiran', 'PermohonanController::permohonanDisetujuiDgLampiran', ['as' => 'admin.permohonan.disetujuiDgLampiran']);
+        $routes->get('data/permohonan/disetujui-tanpa-lampiran', 'PermohonanController::permohonanDisetujuiTnpLampiran', ['as' => 'admin.permohonan.disetujuiTnpLampiran']);
+        $routes->get('data/permohonan/tidak-disetujui', 'PermohonanController::permohonanTidakDisetujui', ['as' => 'admin.permohonan.tidakDisetujui']);
+        $routes->get('data/permohonan/masuk', 'PermohonanController::permohonanMasuk', ['as' => 'admin.permohonan.masuk']);
+        $routes->post('data/permohonan/kirimTindakan/(:num)', 'PermohonanController::kirimTindakan/$1', ['as' => 'admin.permohonan.kirimTindakan']);
 
         $routes->get('modul', 'ModulController::index', ['as' => 'admin.modul.index']);
         $routes->get('modul/create', 'ModulController::create', ['as' => 'admin.modul.create']);
@@ -32,6 +35,7 @@ $routes->group('dashboard', [], function ($routes) {
 
         $routes->group('setting', [], function ($routes) {
             $routes->get('view-peta', 'SettingController::viewPeta', ['as' => 'admin.setting.viewPeta']);
+            $routes->post('UpdateSetting/peta', 'SettingController::updateSettingMap', ['as' => 'admin.setting.updateSettingMap']);
         });
 
         $routes->group('kesesuaian/data', function ($routes) {
@@ -41,7 +45,7 @@ $routes->group('dashboard', [], function ($routes) {
             $routes->get('kawasan', 'KesesuaianController::kawasan', ['as' => 'admin.kesesuaian.kawasan']);
             $routes->get('kawasan/show/(:any)', 'KesesuaianController::showDataKawasan/$1', ['as' => 'admin.kesesuaian.kawasan.show']);
             $routes->post('kawasan/create', 'KesesuaianController::tambahZonaKawasan', ['as' => 'admin.kesesuaian.kawasan.create']);
-            $routes->match(['post', 'patch'], 'kawasan/update/(:any)', 'KesesuaianController::updateKawasan/$1', ['as' => 'admin.kesesuaian.kawasan.update']);
+            $routes->match(['post', 'put'], 'kawasan/update/(:any)', 'KesesuaianController::updateKawasan/$1', ['as' => 'admin.kesesuaian.kawasan.update']);
             $routes->delete('kawasan/delete/(:any)', 'KesesuaianController::deleteKawasan/$1', ['as' => 'admin.kesesuaian.kawasan.delete']);
             $routes->get('kesesuaian', 'KesesuaianController::kesesuaian', ['as' => 'admin.kesesuaian.kesesuaian']);
         });
@@ -55,6 +59,13 @@ $routes->group('dashboard', [], function ($routes) {
         $routes->match(['post', 'patch'], 'profile/photo', 'ProfileController::updatePhoto', ['as' => 'admin.profile.updatePhoto']);
         $routes->match(['post', 'patch'], 'profile/password', 'ProfileController::updatePassword', ['as' => 'admin.profile.updatePassword']);
         $routes->delete('profile/delete', 'ProfileController::destroy', ['as' => 'admin.profile.destroy']);
+
+        $routes->get('ajuan-saya', 'DashboardController::mySubmission', ['as' => 'admin.mySubmission']);
+
+        $routes->get('data/permohonan/(:num)/edit', 'PermohonanController::edit/$1', ['as' => 'admin.permohonan.edit']);
+        $routes->delete('data/permohonan/delete/(:any)', 'PermohonanController::destroy/$1', ['as' => 'admin.permohonan.destroy']);
+        $routes->get('data/permohonan/(:any)/lihat/(:num)', 'PermohonanController::show/$1/$2', ['as' => 'admin.permohonan.show']);
+        $routes->get('data/permohonan/lihat/(:num)', 'PermohonanController::show/$1');
     });
 });
 

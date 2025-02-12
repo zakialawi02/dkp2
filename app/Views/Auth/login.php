@@ -26,10 +26,10 @@ login, account, login form
 		<div class="row justify-content-center">
 			<div class="col-lg-4 col-md-6 d-flex flex-column align-items-center justify-content-center">
 
-				<div class="d-flex justify-content-center py-4">
-					<a class="logo d-flex align-items-center w-auto" href="<?= base_url('/') ?>">
-						<img src="<?= base_url('assets/img/logo-crop.png') ?>" alt="">
-						<span class="d-none d-lg-block">NiceAdmin</span>
+				<div class="d-flex justify-content-center py-3">
+					<a class=" d-flex align-items-center w-auto" href="<?= base_url('/') ?>">
+						<img src="<?= base_url('assets/img/logo navbar.png') ?>" alt="logo" class="" width="200">
+						<span class="d-none d-lg-block"></span>
 					</a>
 				</div><!-- End Logo -->
 

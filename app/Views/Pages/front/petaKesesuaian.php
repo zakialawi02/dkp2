@@ -751,7 +751,7 @@
     // Init View
     const view = new View({
         // projection: "EPSG:4326",
-        center: ol.proj.fromLonLat([117.83872038517481, -0.31515712103976057]),
+        center: fromLonLat([117.83872038517481, -0.31515712103976057]),
         zoom: 8,
     });
 
@@ -931,7 +931,7 @@
             mousePositionControl,
         ],
     });
-    map.getViewport().style.cursor = 'auto';
+    map.getViewport().style.cursor = 'grab';
 
     function setBasemap(mapType, element = null) {
         document.getElementById('active-basemap').src = element?.nextElementSibling?.src ?? element?.querySelector('img')?.src;

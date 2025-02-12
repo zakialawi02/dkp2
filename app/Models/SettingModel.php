@@ -4,15 +4,15 @@ namespace App\Models;
 
 use CodeIgniter\Model;
 
-class KegiatanModel extends Model
+class SettingModel extends Model
 {
-    protected $table      = 'tbl_kegiatan';
-    protected $primaryKey = 'id_kegiatan';
+    protected $table      = 'tbl_setting';
+    protected $primaryKey = 'id';
     protected $useAutoIncrement = true;
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
-    protected $allowedFields    = ['nama_kegiatan', 'kode_kegiatan'];
+    protected $allowedFields = ['coordinat_wilayah', 'zoom_view', 'notif_email', 'notif_wa'];
 
     protected bool $allowEmptyInserts = false;
     protected bool $updateOnlyChanged = true;
@@ -28,10 +28,7 @@ class KegiatanModel extends Model
     protected $deletedField  = 'deleted_at';
 
     // Validation
-    protected $validationRules = [
-        "nama_kegiatan" => 'required|min_length[3]',
-        "kode_kegiatan" => "required|min_length[2]|alpha_numeric|is_unique[tbl_kegiatan.kode_kegiatan]",
-    ];
+    protected $validationRules      = [];
     protected $validationMessages   = [];
     protected $skipValidation       = false;
     protected $cleanValidationRules = true;
@@ -46,20 +43,4 @@ class KegiatanModel extends Model
     protected $afterFind      = [];
     protected $beforeDelete   = [];
     protected $afterDelete    = [];
-
-    public function getJenisKegiatan($id_kegiatan = false)
-    {
-        if ($id_kegiatan === false) {
-            return $this->db->table('tbl_kegiatan')
-                ->select('*')
-                ->orderBy('id_kegiatan', 'ASC')
-                ->get();
-        } else {
-            return $this->db->table('tbl_kegiatan')
-                ->select('*')
-                ->orderBy('id_kegiatan', 'ASC')
-                ->Where(['tbl_kegiatan.id_kegiatan' => $id_kegiatan])
-                ->get();
-        }
-    }
 }

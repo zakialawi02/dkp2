@@ -1,19 +1,55 @@
 <?php $this->extend('Layouts/dashboardTemplate') ?>
 
 <?php $this->section('title') ?>
-Dashboard
+<?= $title ?? ""; ?> • Dashboard
 <?php $this->endSection() ?>
 
 <?php $this->section('og_title') ?>
-Dashboard
+<?= $title ?? ""; ?> • Dashboard
 <?php $this->endSection() ?>
 
 <?php $this->section('css') ?>
 <!-- Code here -->
+<style>
+    body {
+        font-size: 0.875rem;
+    }
+</style>
 <?php $this->endSection() ?>
 
 
 <?php $this->section('content') ?>
+<?php
+$allData = $allDataPermohonan;
+$allDataBaru = [];
+$allDataSetujui = [];
+$allDataTolak = [];
+foreach ($allData as $key => $row) {
+    if ($row->stat_appv == 0) {
+        $allDataBaru[] = $row;
+    } elseif ($row->stat_appv == 1) {
+        $allDataSetujui[] = $row;
+    } elseif ($row->stat_appv == 2) {
+        $allDataTolak[] = $row;
+    }
+}
+$allDataTerjawab = array_merge($allDataSetujui, $allDataTolak);
+usort($allDataSetujui, function ($a, $b) {
+    return strtotime($b->date_updated) - strtotime($a->date_updated);
+});
+usort($allDataTolak, function ($a, $b) {
+    return strtotime($b->date_updated) - strtotime($a->date_updated);
+});
+usort($allDataTerjawab, function ($a, $b) {
+    return strtotime($b->date_updated) - strtotime($a->date_updated);
+});
+$countAllPermohonan = count($allData);
+// $countAllSetujui = count($allDataSetujui);
+$countAllPending = count($allDataBaru);
+// $countAllTolak = count($allDataTolak);
+$allDataTerjawab = array_slice($allDataTerjawab, 0, 5);
+$allDataBaru = array_slice($allDataBaru, 0, 5);
+?>
 
 <div class="row">
 
@@ -30,7 +66,7 @@ Dashboard
                                 <i class="bi bi-file-earmark-text-fill"></i>
                             </div>
                             <div class="ps-3">
-                                <h6>145</h6>
+                                <h6><?= $countAllPermohonan; ?></h6>
                             </div>
                         </div>
                     </div>
@@ -47,7 +83,7 @@ Dashboard
                                 <i class="bi bi-hourglass-split"></i>
                             </div>
                             <div class="ps-3">
-                                <h6>4</h6>
+                                <h6><?= $countAllPending; ?></h6>
                             </div>
                         </div>
                     </div>
@@ -64,7 +100,7 @@ Dashboard
                                 <i class="bi bi-people"></i>
                             </div>
                             <div class="ps-3">
-                                <h6>1244</h6>
+                                <h6><?= $countAllUser; ?></h6>
                             </div>
                         </div>
                     </div>
@@ -80,39 +116,34 @@ Dashboard
                             <table class="table-hover table-striped table" id="myTable" style="width:100%">
                                 <thead>
                                     <tr>
-                                        <th scope="col">No. Permohonan</th>
                                         <th scope="col" style="min-width: 120px; max-width: 170px;">Tanggal Masuk</th>
                                         <th scope="col" style="min-width: 180px; max-width: 280px;">Nama Pemohon</th>
                                         <th scope="col" style="min-width: 200px; max-width: 300px;">Jenis Kegiatan</th>
-                                        <th scope="col" style="min-width: 120px">Action</th>
+                                        <th scope="col">Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr>
-                                        <td>1</td>
-                                        <td>2023-10-02</td>
-                                        <td>Jane Doe</td>
-                                        <td>Usaha pembudidayaan ikan laut (kerapu, kakap, baronang)</td>
-                                        <td>
-                                            <a href="/dashboard/permohonan/edit/1" class="btn btn-sm btn-warning"><i class="bi bi-binoculars"></i> Periksa</a>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>2</td>
-                                        <td>2023-10-03</td>
-                                        <td>Robert Smith</td>
-                                        <td>Jasa Wisata Tirta (bahari)</td>
-                                        <td>
-                                            <a href="/dashboard/permohonan/edit/1" class="btn btn-sm btn-warning"><i class="bi bi-binoculars"></i> Periksa</a>
-                                        </td>
-                                    </tr>
+                                    <?php if (empty($allDataBaru)) : ?>
+                                        <tr>
+                                            <td colspan="6" class="text-center">Belum ada data</td>
+                                        </tr>
+                                    <?php else : ?>
+                                        <?php foreach ($allDataBaru as $baru) : ?>
+                                            <tr>
+                                                <td><?= date('d M Y', strtotime($baru->created_at)); ?></td>
+                                                <td><?= esc($baru->nama); ?></td>
+                                                <td><?= esc($baru->nama_kegiatan); ?></td>
+                                                <td><a type="button" role="button" href="/admin/data/permohonan/<?= ($baru->stat_appv == '0') ? 'menunggu-jawaban' : ''; ?>/lihat/<?= $baru->id_perizinan; ?>" class="btn-sm btn btn-info bi bi-binoculars" data-bs-toggle="tooltip" data-bs-placement="top" title="Periksa" target="_blank"></a></td>
+                                            </tr>
+                                        <?php endforeach ?>
+                                    <?php endif ?>
                                 </tbody>
                             </table>
                         </div>
                     </div>
 
                     <div class="card-footer">
-                        <a href="#" class="btn btn-sm btn-primary">Lihat Lebih Banyak</a>
+                        <a href="<?= route_to('admin.permohonan.masuk'); ?>" class="btn btn-sm btn-primary">Lihat Lebih Banyak</a>
                     </div>
                 </div>
             </div>
@@ -126,42 +157,34 @@ Dashboard
                             <table class="table-hover table-striped table" id="myTable" style="width:100%">
                                 <thead>
                                     <tr>
-                                        <th scope="col">No. Permohonan</th>
                                         <th scope="col" style="min-width: 120px; max-width: 170px;">Tanggal Masuk</th>
                                         <th scope="col" style="min-width: 120px; max-width: 170px;">Tanggal Dibalas</th>
                                         <th scope="col" style="min-width: 180px; max-width: 280px;">Nama Pemohon</th>
                                         <th scope="col" style="min-width: 200px; max-width: 300px;">Jenis Kegiatan</th>
-                                        <th scope="col" style="min-width: 120px">Action</th>
+                                        <th scope="col">Status</th>
+                                        <th scope="col">Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr>
-                                        <td>1</td>
-                                        <td>2023-10-02</td>
-                                        <td>2023-10-03</td>
-                                        <td>Jane Doe</td>
-                                        <td>Usaha pembudidayaan ikan laut (kerapu, kakap, baronang)</td>
-                                        <td>
-                                            <a href="/dashboard/permohonan/view/1" class="btn btn-sm btn-primary" role="group" aria-label="First group" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="view data"><i class="bi bi-eye"></i></a>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>2</td>
-                                        <td>2023-10-03</td>
-                                        <td>2023-10-04</td>
-                                        <td>Robert Smith</td>
-                                        <td>Jasa Wisata Tirta (bahari)</td>
-                                        <td>
-                                            <a href="/dashboard/permohonan/view/1" class="btn btn-sm btn-primary" role="group" aria-label="First group" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="view data"><i class="bi bi-eye"></i></a>
-                                        </td>
-                                    </tr>
+                                    <?php foreach ($allDataTerjawab as $jawab) : ?>
+                                        <tr>
+                                            <td><?= date('d M Y', strtotime($jawab->created_at)); ?></td>
+                                            <td><?= date('d M Y', strtotime($jawab->date_updated)); ?></td>
+                                            <td class="name"><?= esc($jawab->nama); ?></td>
+                                            <td class="address"><?= esc($jawab->nama_kegiatan); ?></td>
+                                            <td><span class="badge bg-<?= ($jawab->stat_appv == '1') ? 'success' : 'danger'; ?>"> <?= ($jawab->stat_appv == '1') ? 'Disetujui' : 'Tidak Disetujui'; ?> </span></td>
+                                            <td>
+                                                <a href="/dashboard/permohonan/view/1" class="btn btn-sm btn-primary" role="group" aria-label="First group" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="view data"><i class="bi bi-eye"></i></a>
+                                            </td>
+                                        </tr>
+                                    <?php endforeach ?>
                                 </tbody>
                             </table>
                         </div>
                     </div>
 
                     <div class="card-footer">
-                        <a href="#" class="btn btn-sm btn-primary">Lihat Lebih Banyak</a>
+                        <a href="<?= route_to('admin.permohonan.disetujui'); ?>" class="btn btn-sm btn-primary">Lihat Lebih Banyak</a>
                     </div>
                 </div>
             </div>
@@ -185,21 +208,19 @@ Dashboard
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td>john_doe</td>
-                            <td>2023-09-15</td>
-                            <td><span class="badge bg-primary">Admin</span></td>
-                        </tr>
-                        <tr>
-                            <td>jane_smith</td>
-                            <td>2023-09-20</td>
-                            <td><span class="badge bg-secondary">User</span></td>
-                        </tr>
-                        <tr>
-                            <td>alice_jones</td>
-                            <td>2023-09-25</td>
-                            <td><span class="badge bg-success">Editor</span></td>
-                        </tr>
+                        <?php if (!empty($userMonth)) : ?>
+                            <?php foreach ($userMonth as $row) : ?>
+                                <tr>
+                                    <td><?= esc($row->username); ?></td>
+                                    <td><?= date('d M Y', strtotime($row->created_at)); ?></td>
+                                    <td><span class="badge bg-primary"><?= $row->name; ?></span></td>
+                                </tr>
+                            <?php endforeach; ?>
+                        <?php else : ?>
+                            <tr>
+                                <td colspan="3" class="text-center small">Tidak ada data</td>
+                            </tr>
+                        <?php endif; ?>
                     </tbody>
                 </table>
             </div>

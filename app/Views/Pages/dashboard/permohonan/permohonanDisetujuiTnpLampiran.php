@@ -9,7 +9,11 @@
 <?php $this->endSection() ?>
 
 <?php $this->section('css') ?>
-<!-- Code here -->
+<style>
+    .card table {
+        font-size: 0.95rem;
+    }
+</style>
 <?php $this->endSection() ?>
 
 
@@ -18,7 +22,7 @@
 
 <div class="">
     <div class="mb-3">
-        <h1 class="fs-3">Data Permohonan Tidak Disetujui</h1>
+        <h1 class="fs-3"> Data Permohonan Disetujui Tanpa Lampiran</h1>
     </div>
 
     <div class="card p-3">
@@ -29,16 +33,19 @@
             <table class="table-hover table-striped table" id="myTable" style="width:100%">
                 <thead>
                     <tr>
-                        <th scope="col" style="min-width: 150px; max-width: 200px;">Tanggal Masuk</th>
-                        <th scope="col" style="min-width: 200px; max-width: 300px;">Nama</th>
+                        <th scope="col">No.</th>
+                        <th scope="col" style="min-width: 120px; max-width: 140px;">Tanggal Masuk</th>
+                        <th scope="col" style="min-width: 120px; max-width: 140px;">Tanggal Dibalas</th>
                         <th scope="col" style="min-width: 150px; max-width: 200px;">NIK</th>
+                        <th scope="col" style="min-width: 200px; max-width: 300px;">Nama</th>
                         <th scope="col" style="min-width: 200px; max-width: 300px;">Alamat</th>
-                        <th scope="col" style="min-width: 200px; max-width: 330px;">Jenis Kegiatan</th>
+                        <th scope="col" style="min-width: 240px; max-width: 320px;">Jenis Kegiatan</th>
                         <th scope="col" style="min-width: 120px">Action</th>
                     </tr>
                 </thead>
                 <tbody>
 
+                </tbody>
             </table>
         </div>
     </div>
@@ -83,16 +90,26 @@
                 [1, 'DESC']
             ],
             columns: [{
+                    data: 'DT_RowIndex',
+                    name: 'DT_RowIndex',
+                    orderable: false,
+                    searchable: false
+                },
+                {
                     data: 'created_at',
                     name: 'created_at',
                 },
                 {
-                    data: 'nama',
-                    name: 'nama',
+                    data: 'date_updated',
+                    name: 'date_updated',
                 },
                 {
                     data: 'nik',
                     name: 'nik',
+                },
+                {
+                    data: 'nama',
+                    name: 'nama',
                 },
                 {
                     data: 'alamat',

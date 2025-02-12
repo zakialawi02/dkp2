@@ -50,6 +50,10 @@
                 white-space: nowrap;
             }
         }
+
+        .dataTables_wrapper>*:nth-child(2) {
+            overflow-x: auto;
+        }
     </style>
 
     <?= $this->renderSection('css') ?>
@@ -81,6 +85,28 @@
 
     <!-- Template Main JS File -->
     <script src="<?= base_url('assets/js/main.js') ?>"></script>
+
+    <?php if (session()->getFlashdata('success')) : ?>
+        <script>
+            Swal.fire({
+                icon: 'success',
+                title: 'Success!',
+                text: '<?= session()->getFlashdata('success'); ?>',
+                timer: 2500,
+            });
+        </script>
+    <?php endif; ?>
+
+    <?php if (session()->getFlashdata('error')) : ?>
+        <script>
+            Swal.fire({
+                icon: 'error',
+                title: 'Oops...',
+                text: '<?= session()->getFlashdata('error'); ?>',
+                timer: 3000,
+            });
+        </script>
+    <?php endif; ?>
 
     <?= $this->renderSection('javascript') ?>
 

@@ -42,7 +42,7 @@
             </div>
         <?php endif; ?>
 
-        <div class="table-responsive">
+        <div class="">
             <table class="table-hover table-striped table" id="myTable" style="width:100%">
                 <thead>
                     <tr>

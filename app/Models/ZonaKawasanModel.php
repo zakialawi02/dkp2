@@ -53,13 +53,13 @@ class ZonaKawasanModel extends Model
 
     public function getZKawasan($id_zona = false, $id_znkwsn = false)
     {
-        if ($id_zona == false) {
+        if ($id_zona == false && $id_znkwsn == false) {
             return $this->db->table('tbl_zona_kawasan')
                 ->select('id_znkwsn, kode_kawasan, nama_zona')
                 ->join('tbl_zona', 'tbl_zona.id_zona = tbl_zona_kawasan.id_zona', 'left');
-        } elseif ($id_znkwsn != false) {
+        } elseif ($id_zona == false && $id_znkwsn != false) {
             return $this->db->table('tbl_zona_kawasan')
-                ->select('id_znkwsn, kode_kawasan, nama_zona')
+                ->select('tbl_zona.id_zona, id_znkwsn, kode_kawasan, nama_zona')
                 ->join('tbl_zona', 'tbl_zona.id_zona = tbl_zona_kawasan.id_zona', 'left')
                 ->Where(['tbl_zona_kawasan.id_znkwsn' => $id_znkwsn]);
         } else {
@@ -68,5 +68,15 @@ class ZonaKawasanModel extends Model
                 ->join('tbl_zona', 'tbl_zona.id_zona = tbl_zona_kawasan.id_zona', 'left')
                 ->Where(['tbl_zona_kawasan.id_zona' => $id_zona]);
         }
+    }
+
+    public function cekDuplikat($id_zona, $kode_kawasan)
+    {
+        return $this->db->table('tbl_zona_kawasan')
+            ->select('tbl_zona_kawasan.*, tbl_zona.*')
+            ->join('tbl_zona', 'tbl_zona.id_zona = tbl_zona_kawasan.id_zona', 'LEFT')
+            ->orderBy('id_znkwsn', 'ASC')
+            ->Where(['tbl_zona_kawasan.id_zona' => $id_zona, 'tbl_zona_kawasan.kode_kawasan' => $kode_kawasan])
+            ->get();
     }
 }

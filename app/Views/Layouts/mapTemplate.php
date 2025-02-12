@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
 
-    <title><?= $this->renderSection('title') ?? "" ?></title>
+    <title><?= $this->renderSection('title') . " | SIMATALAUT KALTIM | Sistem Informasi Tata Ruang Laut Kaltim" ?? " SIMATALAUT KALTIM | Sistem Informasi Tata Ruang Laut Kaltim" ?></title>
     <meta name="description" content="<?= $this->renderSection('meta_description') ?? '' ?>">
     <meta name="author" content="<?= $this->renderSection('meta_author') ?? 'Ahmad Zaki Alawi' ?>">
 

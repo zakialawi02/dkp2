@@ -9,7 +9,6 @@
 <?php $this->endSection() ?>
 
 <?php $this->section('css') ?>
-<link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.11.0/dist/sweetalert2.min.css" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 
 <?php $this->endSection() ?>
@@ -20,7 +19,7 @@
 
 <div class="">
     <div class="mb-3">
-        <h1 class="fs-3">Data Jenis Zona</h1>
+        <h1 class="fs-3">Data Kawasan</h1>
     </div>
 
     <div class="card p-3">
@@ -61,7 +60,7 @@
     </div>
 
     <div class="card p-3">
-        <div class="table-responsive">
+        <div class="">
             <table class="table-hover table-striped table" id="myTable" style="width:100%">
                 <thead>
                     <tr>
@@ -88,9 +87,11 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
+                <div id="error-messages"></div>
                 <div class="tempatEdit">
                     <form id="editForm" action="" method="post">
-                        <?php csrf_field() ?>
+                        <?= csrf_field(); ?>
+                        <input type="hidden" name="_method" id="_method" value="PUT">
 
                         <div class="mb-3">
                             <label for="editKawasan" class="form-label">Kode Kawasan (Kawasan)</label>
@@ -107,7 +108,7 @@
                         </div>
                         <div class="form-text" id="textHelp" style="color: red;"></div>
                         <div class="p-1 text-end">
-                            <button type="button" role="button" class="btn btn-primary" id="saveBtn">Simpan</button>
+                            <button type="submit" role="button" class="btn btn-primary" id="saveBtn">Update</button>
                         </div>
                     </form>
                 </div>
@@ -122,7 +123,6 @@
 
 
 <?php $this->section('javascript') ?>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.11.0/dist/sweetalert2.all.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
 <script>
@@ -193,7 +193,9 @@
             $('meta[name="csrf-token"]').attr('content', csrfToken);
         }
 
-        // Add data
+        const cardErrorMessages = `<div id="body-messages" class="alert alert-danger" role="alert"></div>`;
+
+        // Save
         $("#tambahForm").submit(function(e) {
             e.preventDefault();
             setupCSRFToken();
@@ -238,6 +240,53 @@
             });
         });
 
+        // Update
+        $("#editForm").submit(function(e) {
+            e.preventDefault();
+            setupCSRFToken();
+            const formData = $('#editForm').serialize();
+            const formAction = $('#editForm').attr('action');
+            const method = $('#editForm').attr('method');
+
+            $.ajax({
+                type: method,
+                url: formAction,
+                data: formData,
+                beforeSend: function() {
+                    $("#error-messages").html("");
+                    $('#saveBtn').prop('disabled', true);
+                },
+                success: function(response) {
+                    $('#modalEdit').modal('hide');
+                    $('#myTable').DataTable().ajax.reload();
+                    Swal.fire({
+                        title: "Success!",
+                        text: response.message,
+                        icon: "success",
+                        timer: 2000,
+                        timerProgressBar: true,
+                        confirmButtonText: "Ok"
+                    });
+                },
+                error: function(error) {
+                    console.log(error);
+
+                    $("#error-messages").html(cardErrorMessages);
+                    const messages = error.responseJSON.errors;
+                    console.log(messages);
+                    $.each(messages, function(indexInArray, message) {
+                        console.log(message);
+                        $("#body-messages").append('<span>' + message + '</span> <br>');
+                    });
+                },
+                complete: function(response) {
+                    $('#saveBtn').prop('disabled', false);
+                    updateCSRFToken(response);
+                }
+            });
+
+        });
+
         // Edit data
         $('body').on('click', '.editData', function() {
             $("#error-messages").html("");
@@ -249,11 +298,11 @@
 
                 $('#modalEdit').modal('show');
                 $('#modalEdit').find('.modal-title').text('Edit Data');
-                $('#userForm').attr('action', `<?= route_to('admin.kesesuaian.kawasan.update', ':dataKawasan') ?>`.replace(':dataKawasan', dataKawasan));
+                $('#editForm').attr('action', `<?= route_to('admin.kesesuaian.kawasan.update', ':dataKawasan') ?>`.replace(':dataKawasan', dataKawasan));
                 $('#saveBtn').text('Update');
                 $('#_method').val('PUT');
-                $('#editKawasan').val(data.data.nama_zona);
-                $('#editZona').val(data.data.kode_kawasan);
+                $('#editKawasan').val(data?.data?.kode_kawasan);
+                $('#editZona').val(data?.data?.id_zona).trigger('change');
             });
         });
 

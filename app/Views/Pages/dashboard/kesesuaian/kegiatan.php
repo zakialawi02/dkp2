@@ -9,7 +9,6 @@
 <?php $this->endSection() ?>
 
 <?php $this->section('css') ?>
-<link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.11.0/dist/sweetalert2.min.css" rel="stylesheet">
 
 <?php $this->endSection() ?>
 
@@ -54,7 +53,7 @@
     </div>
 
     <div class="card p-3">
-        <div class="table-responsive">
+        <div class="">
             <table class="table-hover table-striped table" id="myTable" style="width:100%">
                 <thead>
                     <tr>
@@ -75,7 +74,6 @@
 
 
 <?php $this->section('javascript') ?>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.11.0/dist/sweetalert2.all.min.js"></script>
 
 <script>
     $(document).ready(function() {
