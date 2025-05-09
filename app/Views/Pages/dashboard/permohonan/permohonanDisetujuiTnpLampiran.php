@@ -68,8 +68,8 @@
         // Update CSRF token after every successful request
         function updateCSRFToken(response) {
             var csrfToken = response.responseJSON.token;
-
             $('meta[name="csrf-token"]').attr('content', csrfToken);
+            $('input[name="csrf_test_name"]').val(csrfToken);
         }
 
         let table = new DataTable('#myTable', {

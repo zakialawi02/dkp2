@@ -35,6 +35,7 @@
     <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.11.0/dist/sweetalert2.min.css" rel="stylesheet">
     <link href="<?= base_url('assets/vendor/bootstrap/css/bootstrap.min.css') ?>" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 
     <!-- Template Main CSS File -->
     <link href="<?= base_url('assets/css/style.css') ?>" rel="stylesheet">
@@ -51,8 +52,19 @@
             }
         }
 
+        .duplicate-row {
+            font-weight: bold;
+            background-color: rgb(214, 61, 74) !important;
+            text-decoration: underline;
+        }
+
         .dataTables_wrapper>*:nth-child(2) {
             overflow-x: auto;
+        }
+
+        .info_status {
+            font-size: small;
+            display: block;
         }
     </style>
 
@@ -82,9 +94,31 @@
     <!-- Vendor JS Files -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.11.0/dist/sweetalert2.all.min.js"></script>
     <script src="<?= base_url('assets/vendor/bootstrap/js/bootstrap.bundle.min.js') ?>"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
 
     <!-- Template Main JS File -->
     <script src="<?= base_url('assets/js/main.js') ?>"></script>
+
+    <script>
+        // Setup CSRF Token for AJAX requests
+        function setupCSRFToken() {
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                }
+            });
+        }
+        // Update CSRF token after every successful request
+        function updateCSRFToken(response) {
+            var csrfToken = response.responseJSON.token;
+            $('meta[name="csrf-token"]').attr('content', csrfToken);
+            $('input[name="csrf_test_name"]').val(csrfToken);
+        }
+
+
+        const loaderSpinner = `<div class="text-center text-primary"><span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span></>`;
+    </script>
 
     <?php if (session()->getFlashdata('success')) : ?>
         <script>

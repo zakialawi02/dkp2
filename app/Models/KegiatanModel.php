@@ -29,8 +29,8 @@ class KegiatanModel extends Model
 
     // Validation
     protected $validationRules = [
-        "nama_kegiatan" => 'required|min_length[3]',
-        "kode_kegiatan" => "required|min_length[2]|alpha_numeric|is_unique[tbl_kegiatan.kode_kegiatan]",
+        "nama_kegiatan"  => 'required|min_length[3]',
+        "kode_kegiatan"  => 'required|min_length[2]|max_length[12]|alpha_numeric|is_unique[tbl_kegiatan.kode_kegiatan,id_kegiatan,{id_kegiatan}]',
     ];
     protected $validationMessages   = [];
     protected $skipValidation       = false;
@@ -38,14 +38,23 @@ class KegiatanModel extends Model
 
     // Callbacks
     protected $allowCallbacks = true;
-    protected $beforeInsert   = [];
+    protected $beforeInsert   = ['formatKegiatan'];
     protected $afterInsert    = [];
-    protected $beforeUpdate   = [];
+    protected $beforeUpdate   = ['formatKegiatan'];
     protected $afterUpdate    = [];
     protected $beforeFind     = [];
     protected $afterFind      = [];
     protected $beforeDelete   = [];
     protected $afterDelete    = [];
+
+    public function formatKegiatan(array $data)
+    {
+        $data['data']['kode_kegiatan'] = strtoupper($data['data']['kode_kegiatan']);
+        $data['data']['nama_kegiatan'] = ucfirst(strtolower($data['data']['nama_kegiatan']));
+
+        return $data;
+    }
+
 
     public function getJenisKegiatan($id_kegiatan = false)
     {

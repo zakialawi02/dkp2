@@ -180,21 +180,6 @@ Dashboard
             ],
         });
 
-        // Setup CSRF Token for AJAX requests
-        function setupCSRFToken() {
-            $.ajaxSetup({
-                headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                }
-            });
-        }
-        // Update CSRF token after every successful request
-        function updateCSRFToken(response) {
-            var csrfToken = response.responseJSON.token;
-
-            $('meta[name="csrf-token"]').attr('content', csrfToken);
-        }
-
         const cardErrorMessages = `<div id="body-messages" class="alert alert-danger" role="alert"></div>`;
 
         // Open modal for creating new user

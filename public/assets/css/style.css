@@ -262,16 +262,6 @@ h6 {
     font-size: 20px;
 }
 
-/* Close Button */
-.btn-close {
-    background-size: 25%;
-}
-
-.btn-close:focus {
-    outline: 0;
-    box-shadow: none;
-}
-
 /* Accordion */
 .accordion-item {
     border: 1px solid #ebeef4;

@@ -133,7 +133,7 @@ $allDataBaru = array_slice($allDataBaru, 0, 5);
                                                 <td><?= date('d M Y', strtotime($baru->created_at)); ?></td>
                                                 <td><?= esc($baru->nama); ?></td>
                                                 <td><?= esc($baru->nama_kegiatan); ?></td>
-                                                <td><a type="button" role="button" href="/admin/data/permohonan/<?= ($baru->stat_appv == '0') ? 'menunggu-jawaban' : ''; ?>/lihat/<?= $baru->id_perizinan; ?>" class="btn-sm btn btn-info bi bi-binoculars" data-bs-toggle="tooltip" data-bs-placement="top" title="Periksa" target="_blank"></a></td>
+                                                <td><a type="button" role="button" href="<?= route_to('admin.permohonan.show', ($baru->stat_appv == '1') ? 'telah-disetujui' : (($baru->stat_appv == '0') ? 'menunggu-jawaban' : 'tidak-disetujui'), $baru->id_perizinan); ?>" class="btn-sm btn btn-info bi bi-binoculars" data-bs-toggle="tooltip" data-bs-placement="top" title="Periksa" target="_blank"></a></td>
                                             </tr>
                                         <?php endforeach ?>
                                     <?php endif ?>
@@ -174,7 +174,7 @@ $allDataBaru = array_slice($allDataBaru, 0, 5);
                                             <td class="address"><?= esc($jawab->nama_kegiatan); ?></td>
                                             <td><span class="badge bg-<?= ($jawab->stat_appv == '1') ? 'success' : 'danger'; ?>"> <?= ($jawab->stat_appv == '1') ? 'Disetujui' : 'Tidak Disetujui'; ?> </span></td>
                                             <td>
-                                                <a href="/dashboard/permohonan/view/1" class="btn btn-sm btn-primary" role="group" aria-label="First group" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="view data"><i class="bi bi-eye"></i></a>
+                                                <a href="<?= route_to('admin.permohonan.show', ($jawab->stat_appv == '1') ? 'telah-disetujui' : (($jawab->stat_appv == '0') ? 'menunggu-jawaban' : 'tidak-disetujui'), $jawab->id_perizinan); ?>" class="btn btn-sm btn-primary" role="group" aria-label="First group" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="view data"><i class="bi bi-eye"></i></a>
                                             </td>
                                         </tr>
                                     <?php endforeach ?>

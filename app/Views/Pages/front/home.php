@@ -115,8 +115,8 @@
 
     </div>
 </section>
-<?php $this->section('javascript') ?>
-<!-- Code here -->
 <?php $this->endSection() ?>
 
+<?php $this->section('javascript') ?>
+<!-- Code here -->
 <?php $this->endSection() ?>

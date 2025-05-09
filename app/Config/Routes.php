@@ -40,7 +40,10 @@ $routes->group('dashboard', [], function ($routes) {
 
         $routes->group('kesesuaian/data', function ($routes) {
             $routes->get('kegiatan', 'KesesuaianController::kegiatan', ['as' => 'admin.kesesuaian.kegiatan']);
+            $routes->get('kegiatan/show/(:any)', 'KesesuaianController::showDataKegiatan/$1', ['as' => 'admin.kesesuaian.kegiatan.show']);
             $routes->post('kegiatan/create', 'KesesuaianController::tambahKegiatan', ['as' => 'admin.kesesuaian.kegiatan.create']);
+            $routes->match(['post', 'put'], 'kegiatan/update/(:any)', 'KesesuaianController::updateKegiatan/$1', ['as' => 'admin.kesesuaian.kegiatan.update']);
+            $routes->delete('kegiatan/delete/(:any)', 'KesesuaianController::deleteKegiatan/$1', ['as' => 'admin.kesesuaian.kegiatan.delete']);
             $routes->get('zona', 'KesesuaianController::zona', ['as' => 'admin.kesesuaian.zona']);
             $routes->get('kawasan', 'KesesuaianController::kawasan', ['as' => 'admin.kesesuaian.kawasan']);
             $routes->get('kawasan/show/(:any)', 'KesesuaianController::showDataKawasan/$1', ['as' => 'admin.kesesuaian.kawasan.show']);
@@ -48,6 +51,10 @@ $routes->group('dashboard', [], function ($routes) {
             $routes->match(['post', 'put'], 'kawasan/update/(:any)', 'KesesuaianController::updateKawasan/$1', ['as' => 'admin.kesesuaian.kawasan.update']);
             $routes->delete('kawasan/delete/(:any)', 'KesesuaianController::deleteKawasan/$1', ['as' => 'admin.kesesuaian.kawasan.delete']);
             $routes->get('kesesuaian', 'KesesuaianController::kesesuaian', ['as' => 'admin.kesesuaian.kesesuaian']);
+            $routes->get('kesesuaian/data/(:any)', 'KesesuaianController::showKesesuaian/$1', ['as' => 'admin.kesesuaian.kesesuaian.show']);
+            $routes->post('kesesuaian/tambahAturanKesesuaian/', 'KesesuaianController::tambahAturanKesesuaian', ['as' => 'admin.kesesuaian.kesesuaian.store']);
+            $routes->post('kesesuaian/updateAturanKesesuaian/(:any)', 'KesesuaianController::updateAturanKesesuaian/$1', ['as' => 'admin.kesesuaian.kesesuaian.update']);
+            $routes->delete('kesesuaian/delete/(:any)', 'KesesuaianController::delete_kesesuaian/$1', ['as' => 'admin.kesesuaian.kesesuaian.delete']);
         });
     });
 
@@ -69,7 +76,15 @@ $routes->group('dashboard', [], function ($routes) {
     });
 });
 
+$routes->group('', ['filter' => 'role:SuperAdmin,Admin,User'], function ($routes) {
+    $routes->post('data/tambahAjuan', 'PermohonanController::tambahAjuan', ['as' => 'admin.permohonan.tambahAjuan']);
+});
 
 
+// Cek Kesesuaian
 $routes->get('/peta', 'KesesuaianController::petaKesesuaian', ['as' => 'petaKesesuaian']);
+$routes->match(['get', 'post'], '/data/cekStatus', 'KesesuaianController::cekStatus', ['as' => 'data.cekStatus']);
+$routes->get('/data/pengajuan', 'PermohonanController::pengajuanPermohonan', ['as' => 'data.pengajuanPermohonan']);
+$routes->post('/data/isiAjuan', 'PermohonanController::isiAjuan', ['as' => 'data.isiAjuan']);
+
 $routes->get('/data/modul', 'ModulController::indexFront', ['as' => 'modul.index']);

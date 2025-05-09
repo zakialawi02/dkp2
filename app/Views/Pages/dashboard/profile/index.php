@@ -198,7 +198,7 @@ Dashboard
                         <input type="hidden" name="_method" value="DELETE">
                         <div class="modal-header">
                             <h5 class="modal-title" id="deleteAccountModalLabel">Confirm Account Deletion</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">✕</button>
                         </div>
                         <div class="modal-body">
                             <p>To confirm the deletion of your account, please enter your password below:</p>

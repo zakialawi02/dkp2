@@ -143,7 +143,7 @@ class UserController extends BaseController
                     ->setStatusCode(ResponseInterface::HTTP_UNPROCESSABLE_ENTITY)
                     ->setJSON([
                         'status' => false,
-                        'message' => 'Failed to update user',
+                        'message' => 'Validation failed',
                         'errors' => $validation->getErrors(),
                         'token' => $newToken
                     ]);

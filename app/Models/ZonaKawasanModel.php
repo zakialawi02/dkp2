@@ -30,7 +30,7 @@ class ZonaKawasanModel extends Model
 
     // Validation
     protected $validationRules      = [
-        'kode_kawasan' => 'required|min_length[2]|regex_match[/^[a-zA-Z0-9_-]+$/]|is_unique[tbl_zona_kawasan.kode_kawasan]'
+        'kode_kawasan' => 'required|min_length[2]|regex_match[/^[a-zA-Z0-9_-]+$/]|is_unique[tbl_zona_kawasan.kode_kawasan,id_znkwsn,{id_znkwsn}]'
     ];
     protected $validationMessages   = [
         'kode_kawasan' => [

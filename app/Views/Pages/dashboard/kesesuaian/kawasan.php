@@ -9,8 +9,7 @@
 <?php $this->endSection() ?>
 
 <?php $this->section('css') ?>
-<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-
+<!-- code here -->
 <?php $this->endSection() ?>
 
 
@@ -24,7 +23,7 @@
 
     <div class="card p-3">
         <form id="tambahForm" action="<?= route_to('admin.kesesuaian.kawasan.create'); ?>" method="post">
-            <?php csrf_field() ?>
+            <?= csrf_field(); ?>
             <div class="row">
                 <div class="col-md-10">
                     <div class="row">
@@ -84,7 +83,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="modalEditLabel">Edit</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">✕</button>
             </div>
             <div class="modal-body">
                 <div id="error-messages"></div>
@@ -108,7 +107,7 @@
                         </div>
                         <div class="form-text" id="textHelp" style="color: red;"></div>
                         <div class="p-1 text-end">
-                            <button type="submit" role="button" class="btn btn-primary" id="saveBtn">Update</button>
+                            <button type="submit" role="button" class="btn btn-primary" id="saveBtn">Simpan</button>
                         </div>
                     </form>
                 </div>
@@ -123,11 +122,10 @@
 
 
 <?php $this->section('javascript') ?>
-<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
 <script>
     $(document).ready(function() {
-        $("#tambahZona").select2({
+        $("#zona").select2({
             placeholder: "Pilih Zona",
             allowClear: true
         });
@@ -178,21 +176,6 @@
             ],
         });
 
-        // Setup CSRF Token for AJAX requests
-        function setupCSRFToken() {
-            $.ajaxSetup({
-                headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                }
-            });
-        }
-        // Update CSRF token after every successful request
-        function updateCSRFToken(response) {
-            var csrfToken = response.responseJSON.token;
-
-            $('meta[name="csrf-token"]').attr('content', csrfToken);
-        }
-
         const cardErrorMessages = `<div id="body-messages" class="alert alert-danger" role="alert"></div>`;
 
         // Save
@@ -225,6 +208,7 @@
                         confirmButtonText: "Ok"
                     });
                     $('#tambahForm')[0].reset();
+                    $("#zona").val(null).trigger('change');
                 },
                 error: function(error) {
                     console.log(error);
@@ -294,8 +278,6 @@
             const dataKawasan = $(this).data('id');
 
             $.get(`<?= route_to('admin.kesesuaian.kawasan.show', ':dataKawasan') ?>`.replace(':dataKawasan', dataKawasan), function(data) {
-                console.log(data);
-
                 $('#modalEdit').modal('show');
                 $('#modalEdit').find('.modal-title').text('Edit Data');
                 $('#editForm').attr('action', `<?= route_to('admin.kesesuaian.kawasan.update', ':dataKawasan') ?>`.replace(':dataKawasan', dataKawasan));

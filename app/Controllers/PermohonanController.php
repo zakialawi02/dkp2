@@ -503,49 +503,58 @@ class PermohonanController extends BaseController
 
     public function destroy($id_perizinan)
     {
-        $data = (object) ((array)$this->izin->getAllPermohonan($id_perizinan)->getRow()  + ['uploadFiles' => $this->uploadFiles->getFiles($id_perizinan)->getResult()]);
+        $data = (object) ((array)$this->izin->getAllPermohonan($id_perizinan)->getRow()
+            + ['uploadFiles' => $this->uploadFiles->getFiles($id_perizinan)->getResult()]);
+
+        // Hapus upload files
         if (!empty($data->uploadFiles)) {
             foreach ($data->uploadFiles as $file) {
-                $file = 'dokumen/upload-dokumen/' . $file->uploadFiles;
-                if (file_exists($file)) {
-                    unlink($file);
+                $filePath = 'dokumen/upload-dokumen/' . $file->uploadFiles;
+                if (file_exists($filePath)) {
+                    unlink($filePath);
                 }
             }
         }
+
+        // Hapus lampiran balasan
         if (!empty($data->dokumen_lampiran)) {
-            $file = 'dokumen/lampiran-balasan/' . $data->dokumen_lampiran;
-            if (file_exists($file)) {
-                unlink($file);
+            $filePath = 'dokumen/lampiran-balasan/' . $data->dokumen_lampiran;
+            if (file_exists($filePath)) {
+                unlink($filePath);
             }
         }
-        // die;
-        $this->izin->delete(['id_perizinan' => $id_perizinan]);
-        if ($this) {
-            session()->setFlashdata('success', 'Data berhasil dihapus.');
-            if (in_groups('User')) {
-                return $this->response->redirect(site_url('/dashboard'));
-            } else {
-                return response()->setStatusCode(ResponseInterface::HTTP_OK)
+
+        // Hapus data dari database
+        $delete = $this->izin->delete(['id_perizinan' => $id_perizinan]);
+
+        // Respon AJAX
+        if ($this->request->isAJAX()) {
+            if ($delete) {
+                return $this->response->setStatusCode(ResponseInterface::HTTP_OK)
                     ->setJSON([
                         'success' => true,
                         'message' => 'Data berhasil dihapus',
-                        'token' => csrf_hash()
+                        'token'   => csrf_hash()
                     ]);
-            }
-        } else {
-            session()->setFlashdata('error', 'Gagal menghapus data.');
-            if (in_groups('User')) {
-                return $this->response->redirect(site_url('/dashboard'));
             } else {
-                return response()->setStatusCode(ResponseInterface::HTTP_BAD_REQUEST)
+                return $this->response->setStatusCode(ResponseInterface::HTTP_BAD_REQUEST)
                     ->setJSON([
                         'success' => false,
                         'message' => 'Gagal menghapus data',
-                        'errors' => $this->izin->errors(),
-                        'token' => csrf_hash()
+                        'errors'  => $this->izin->errors(),
+                        'token'   => csrf_hash()
                     ]);
             }
         }
+
+        // Respon NON-AJAX (biasa)
+        if ($delete) {
+            session()->setFlashdata('success', 'Data berhasil dihapus.');
+        } else {
+            session()->setFlashdata('error', 'Gagal menghapus data.');
+        }
+
+        return redirect()->back();
     }
 
     private function loadDoc($id_perizinan)
@@ -567,5 +576,121 @@ class PermohonanController extends BaseController
         }
         // $result = $this->response->setJSON(['files' => $files]);
         return $files;
+    }
+
+
+    public function pengajuanPermohonan()
+    {
+        // Ambil id dari query string
+        $id = $this->request->getGet('id');
+
+        // Default data view
+        $data = [
+            'title' => 'Pengajuan Permohonan',
+            'tampilData' => $this->setting->Where(['id' => 1])->get()->getRow(),
+            'jenisKegiatan' => $this->kegiatan->getJenisKegiatan()->getResult(),
+        ];
+
+        // Kalau ada id di query string, coba ambil data dari cache
+        if ($id) {
+            $cachedData = cache()->get('ajuan_' . $id);
+            if ($cachedData) {
+                // Merge cached data ke $data view
+                $data = array_merge($data, [
+                    'ajuanData' => $cachedData,
+                    'cacheId'   => $id, // opsional, kalau mau dipake di view
+                ]);
+                // dd($data);
+            } else {
+                // Kalau data cache gak ketemu, bisa kasih flash message atau lewatin aja
+                session()->setFlashdata('error', 'Data permohonan tidak ditemukan atau sudah kadaluarsa.');
+                // Redirect ke halaman awal atau halaman lain
+                return redirect()->to('/peta');
+            }
+        } else {
+            // Redirect ke halaman awal atau halaman lain
+            return redirect()->to('/peta');
+        }
+
+        // Tampilkan view
+        return view('Pages/front/ajuanPermohonan', $data);
+    }
+
+
+    public function isiAjuan()
+    {
+        $timestamp = time();
+        $data = [
+            'title' => 'Data Permohonan',
+            'kegiatanValue' => $this->request->getVar('kegiatan'),
+            'geojson' => $this->request->getPost('geojson'),
+            'getOverlap' => $this->request->getPost('getOverlap'),
+            'getOverlapProperties' => $this->request->getPost('getOverlapProperties'),
+            'valZona' => $this->request->getPost('idZona'),
+            'hasilStatus' => $this->request->getPost('hasilStatus'),
+        ];
+
+        // Simpan ke cache
+        cache()->save('ajuan_' . $timestamp, $data, 3600);
+
+        // Redirect dengan query string id
+        return redirect()->to('/data/pengajuan?id=' . $timestamp);
+    }
+
+    // TAMBAH DATA PERMOHONAN
+    public function tambahAjuan()
+    {
+        // dd($this->request->getPost());
+        $user = user_id();
+        $data = [
+            'nik' => $this->request->getVar('nik'),
+            'nib' => $this->request->getVar('nib'),
+            'nama' => $this->request->getVar('nama'),
+            'alamat' => $this->request->getVar('alamat'),
+            'kontak' => $this->request->getVar('kontak'),
+            'id_kegiatan' => $this->request->getVar('idKegiatan'),
+            'kode_kawasan' => $this->request->getVar('kawasan'),
+            'id_zona' => $this->request->getVar('idZona'),
+            'lokasi' => $this->request->getVar('drawFeatures'),
+            'created_at' => date('Y-m-d H:i:s'),
+            'updated_at' => date('Y-m-d H:i:s'),
+        ];
+
+        if (!$this->validate($this->izin->validationRules)) {
+            return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
+        }
+        // dd($data);
+
+        $addPengajuan =  $this->izin->save($data);
+        $insert_id = $this->db->insertID();
+
+        $files = $this->request->getFiles();
+        if (!empty($files['filepond']) && count(array_filter($files['filepond'], function ($file) {
+            return $file->isValid() && !$file->hasMoved();
+        }))) {
+            foreach ($files['filepond'] as $key => $file) {
+                if ($file->isValid() && !$file->hasMoved()) {
+                    $originalName = $file->getClientName();
+                    $pathInfo = pathinfo($originalName);
+                    $fileName = $pathInfo['filename'];
+                    $fileExt = $file->guessExtension();
+                    $uploadFiles = $fileName . "_" . date('YmdHis') . "." . $fileExt;
+                    $dataF = [
+                        'id_perizinan' => $insert_id,
+                        'file' => $uploadFiles,
+                    ];
+                    $this->uploadFiles->save($dataF);
+                    $file->move('dokumen/upload-dokumen/', $uploadFiles);
+                }
+            }
+        }
+
+        if ($addPengajuan) {
+            session()->setFlashdata('success', 'Data Berhasil ditambahkan.');
+            return $this->response->redirect(site_url('/dashboard'));
+        } else {
+            session()->setFlashdata('error', 'Gagal menambahkan data.');
+            return $this->response->redirect(site_url('/peta'));
+        }
     }
 }

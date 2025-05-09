@@ -30,7 +30,7 @@ class IzinModel extends Model
     // Validation
     protected $validationRules      = [
         'nik' => 'required|numeric|min_length[16]|max_length[16]',
-        'nib' => 'required|min_length[10]|max_length[20]',
+        'nib' => 'permit_empty|min_length[10]|max_length[20]',
         'nama' => 'required|min_length[3]|max_length[100]',
         'kontak' => 'required|numeric|min_length[6]|max_length[20]',
         'alamat' => 'required|min_length[3]|max_length[200]',
@@ -42,7 +42,7 @@ class IzinModel extends Model
     // Callbacks
     protected $allowCallbacks = true;
     protected $beforeInsert   = [];
-    protected $afterInsert    = [];
+    protected $afterInsert    = ['addStatusAppv'];
     protected $beforeUpdate   = [];
     protected $afterUpdate    = [];
     protected $beforeFind     = [];
@@ -127,5 +127,24 @@ class IzinModel extends Model
             ->join('users', 'users.id = tbl_status_appv.user')
             ->orderBy('created_at', 'DESC')
             ->getWhere(['user' => $userid]);
+    }
+
+    function addStatusAppv(array $data)
+    {
+        $this->db->table('tbl_status_appv')->insert([
+            'id_perizinan' => $data['id'],
+            'user' => user_id(),
+            'stat_appv' => '0',
+            'date_updated' => date('Y-m-d H:i:s'),
+        ]);
+    }
+
+    function updateStatusAppv(array $data)
+    {
+        $this->db->table('tbl_status_appv')->where('id_perizinan', $data['id_perizinan'])->update([
+            'stat_appv' => $data['stat_appv'],
+            'user' => user_id(),
+            'date_updated' => date('Y-m-d H:i:s'),
+        ]);
     }
 }

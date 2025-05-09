@@ -33,41 +33,53 @@
     <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
 
     <!-- Vendor CSS Files -->
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.11.0/dist/sweetalert2.min.css" rel="stylesheet">
     <link href="<?= base_url('assets/vendor/bootstrap/css/bootstrap.min.css') ?>" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
     <link href=" https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.7.1/nouislider.css " rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
 
     <!-- Template Main CSS File -->
     <link href="<?= base_url('assets/css/main_general.css') ?>" rel="stylesheet">
 
     <style>
         .sidebar {
+            position: fixed;
             width: 60px;
             background: #f8f9fa;
             height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding-top: 20px;
-            position: fixed;
             left: 0;
             top: 0;
             z-index: 100;
+            padding: 10px 15px;
+            gap: 10px;
         }
 
         .sidebar i {
             font-size: 20px;
-            margin: 15px 0;
-            cursor: pointer;
+            margin: 10px 0;
             transition: background-color 0.3s ease, color 0.3s ease;
         }
 
-        .sidebar i.active {
-            color: var(--primary-color);
+        .icon-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 10px;
+            color: #333;
+            cursor: pointer;
+            text-align: center;
         }
 
-        .sidebar i:hover {
-            color: var(--secondary-color);
+        .icon-wrapper i.active,
+        .icon-wrapper i.active+span,
+        .icon-wrapper i:hover,
+        .icon-wrapper i:hover+span {
+            color: var(--primary-color);
         }
 
         .main-content {
@@ -87,6 +99,7 @@
 
         .bottombar {
             position: absolute;
+            display: flex;
             bottom: 20px;
             left: 50%;
             transform: translateX(-50%);
@@ -94,11 +107,12 @@
             padding: 8px 15px;
             border-radius: 10px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            z-index: 10;
+            gap: 10px;
         }
 
         .bottombar i {
             font-size: 18px;
-            margin: 0 10px;
             cursor: pointer;
             z-index: 10;
         }
@@ -112,6 +126,17 @@
             transform: scale(1.3);
             margin-right: 0.5rem;
         }
+
+        .info_status {
+            font-size: small;
+            display: block;
+        }
+
+        @media screen and (max-width: 768px) {
+            .main-content {
+                margin-left: 0;
+            }
+        }
     </style>
 
     <?= $this->renderSection('css') ?>
@@ -120,12 +145,23 @@
 <body class="overflow-hidden">
     <?= $this->include('components/front/_headerMap'); ?>
 
-    <div class="sidebar">
+    <div class="sidebar d-none d-md-flex">
         <div class="p-4 m-2"></div>
-        <i class="bi bi-layers" id="toggleLayers" data-bs-toggle="tooltip" title="Layers"></i>
-        <i class="bi bi-rulers" id="toggleMeasurement" data-bs-toggle="tooltip" title="Measurement"></i>
-        <i class="bi bi-geo" id="toggleCekKesesuaian" data-bs-toggle="tooltip" title="Cek Kesesuaian"></i>
+
+        <div class="icon-wrapper">
+            <i class="bi bi-layers toggleLayers" data-bs-toggle="tooltip" title="Layers"></i>
+            <span>Layers</span>
+        </div>
+        <div class="icon-wrapper">
+            <i class="bi bi-rulers toggleMeasurement" data-bs-toggle="tooltip" title="Pengukuran"></i>
+            <span>Ukur</span>
+        </div>
+        <div class="icon-wrapper">
+            <i class="bi bi-geo toggleCekKesesuaian" data-bs-toggle="tooltip" title="Cek Kesesuaian"></i>
+            <span>Cek</span>
+        </div>
     </div>
+
 
 
     <main class="main-content">
@@ -134,24 +170,58 @@
             <?= $this->renderSection('content') ?>
         </div>
 
-        <div class="bottombar">
-            <i class="bi bi-zoom-in" data-bs-toggle="tooltip" title="Zoom In"></i>
-            <i class="bi bi-search" data-bs-toggle="tooltip" title="Search"></i>
-            <i class="bi bi-house" data-bs-toggle="tooltip" title="Home"></i>
-            <i class="bi bi-layers" data-bs-toggle="tooltip" title="Layers"></i>
-            <i class="bi bi-rulers" data-bs-toggle="tooltip" title="Measure"></i>
+        <div class="bottombar d-md-none">
+            <div class="icon-wrapper">
+                <i class="bi bi-zoom-in toggleZoomIn" data-bs-toggle="tooltip" title="Zoom In"></i>
+                <span>Zoom In</span>
+            </div>
+            <div class="icon-wrapper">
+                <i class="bi bi-search toggleSearch" data-bs-toggle="tooltip" title="Search"></i>
+                <span>Search</span>
+            </div>
+            <div class="icon-wrapper">
+                <i class="bi bi-layers toggleLayers" data-bs-toggle="tooltip" title="Layers"></i>
+                <span>Layers</span>
+            </div>
+            <div class="icon-wrapper">
+                <i class="bi bi-rulers toggleMeasurement" data-bs-toggle="tooltip" title="Pengukuran"></i>
+                <span>Ukur</span>
+            </div>
+            <div class="icon-wrapper">
+                <i class="bi bi-geo toggleCekKesesuaian" data-bs-toggle="tooltip" title="Cek Kesesuaian"></i>
+                <span>Cek</span>
+            </div>
         </div>
+
 
     </main><!-- End #main -->
 
 
     <!-- Vendor JS Files -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.11.0/dist/sweetalert2.all.min.js"></script>
     <script src="<?= base_url('assets/vendor/bootstrap/js/bootstrap.bundle.min.js') ?>"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
 
     <!-- Template Main JS File -->
     <script src="<?= base_url('assets/js/main_general.js') ?>"></script>
 
     <script>
+        // Setup CSRF Token for AJAX requests
+        function setupCSRFToken() {
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                }
+            });
+        }
+        // Update CSRF token after every successful request
+        function updateCSRFToken(response) {
+            var csrfToken = response.responseJSON.token;
+            $('meta[name="csrf-token"]').attr('content', csrfToken);
+            $('input[name="csrf_test_name"]').val(csrfToken);
+        }
+
         $(".navbar-toggler").click(function(e) {
             $("#navbarNav").toggleClass("collapse");
             $("#navbarNav").toggleClass("show");
@@ -171,13 +241,17 @@
 
         const loaderSpinner = `<div class="text-center text-primary"><span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span></>`;
 
+        $(".zona").html(loaderSpinner);
+        $(".kawasan").html(loaderSpinner);
+        $(".kode").html(loaderSpinner);
+
         /**
          * Creates a panel toggle handler with the given configuration.
          *
          * @param {Object} config - Configuration object for the panel toggle handler.
-         * @param {string} config.toggleButtonId - The ID of the toggle button.
-         * @param {string} config.panelId - The ID of the panel.
-         * @param {string} config.closeButtonId - The ID of the close button.
+         * @param {string} config.toggleButtonId - The ID or class of the toggle button.
+         * @param {string} config.panelId - The ID or class of the panel.
+         * @param {string} config.closeButtonId - The ID or class of the close button.
          * @param {Array<Object>} [config.otherPanelConfigs=[]] - Array of other panel configurations.
          */
         function createPanelToggleHandler(config) {
@@ -188,15 +262,15 @@
                 otherPanelConfigs = []
             } = config;
 
-            const $toggleButton = $(`#${toggleButtonId}`);
-            const $panel = $(`#${panelId}`);
-            const $closeButton = $(`#${closeButtonId}`);
+            const $toggleButton = $(toggleButtonId.startsWith('.') ? toggleButtonId : `#${toggleButtonId}`);
+            const $panel = $(panelId.startsWith('.') ? panelId : `#${panelId}`);
+            const $closeButton = $(closeButtonId.startsWith('.') ? closeButtonId : `#${closeButtonId}`);
 
             // Fungsi untuk menutup panel lain
             function closeOtherPanels() {
                 otherPanelConfigs.forEach(otherConfig => {
-                    const $otherPanel = $(`#${otherConfig.panelId}`);
-                    const $otherToggleButton = $(`#${otherConfig.toggleButtonId}`);
+                    const $otherPanel = $(otherConfig.panelId.startsWith('.') ? otherConfig.panelId : `#${otherConfig.panelId}`);
+                    const $otherToggleButton = $(otherConfig.toggleButtonId.startsWith('.') ? otherConfig.toggleButtonId : `#${otherConfig.toggleButtonId}`);
 
                     if ($otherPanel.hasClass('show')) {
                         $otherPanel.removeClass('show');
@@ -206,17 +280,19 @@
             }
 
             // Event listener untuk tombol toggle
-            $toggleButton.on('click', function() {
+            $toggleButton.on('click', function(e) {
                 // Tutup panel lain terlebih dahulu
                 closeOtherPanels();
-
+                $('.icon-wrapper i').removeClass('active');
                 // Toggle panel saat ini
+                e.preventDefault();
                 $panel.toggleClass('show');
                 $toggleButton.toggleClass('active', $panel.hasClass('show'));
             });
 
             // Event listener untuk tombol close
-            $closeButton.on('click', function() {
+            $closeButton.on('click', function(e) {
+                e.preventDefault();
                 $panel.removeClass('show');
                 $toggleButton.removeClass('active');
             });
@@ -224,7 +300,7 @@
 
         // Konfigurasi untuk layer panel
         createPanelToggleHandler({
-            toggleButtonId: 'toggleLayers',
+            toggleButtonId: '.toggleLayers',
             panelId: 'layerPanel',
             closeButtonId: 'closeLayers',
             otherPanelConfigs: [{
@@ -235,7 +311,7 @@
 
         // Konfigurasi untuk measurement panel
         createPanelToggleHandler({
-            toggleButtonId: 'toggleMeasurement',
+            toggleButtonId: '.toggleMeasurement',
             panelId: 'measurementPanel',
             closeButtonId: 'closeMeasurement',
             otherPanelConfigs: [{
@@ -245,7 +321,7 @@
         });
 
         createPanelToggleHandler({
-            toggleButtonId: 'toggleCekKesesuaian',
+            toggleButtonId: '.toggleCekKesesuaian',
             panelId: 'cekKesesuaianPanel',
             closeButtonId: 'closeCekKesesuaian',
             otherPanelConfigs: []
@@ -273,6 +349,28 @@
         // 2. Struktur HTML harus memiliki id yang sesuai dengan konfigurasi
         // 3. Gunakan kelas 'show' untuk menampilkan/menyembunyikan panel
     </script>
+
+    <?php if (session()->getFlashdata('success')) : ?>
+        <script>
+            Swal.fire({
+                icon: 'success',
+                title: 'Success!',
+                text: '<?= session()->getFlashdata('success'); ?>',
+                timer: 2500,
+            });
+        </script>
+    <?php endif; ?>
+
+    <?php if (session()->getFlashdata('error')) : ?>
+        <script>
+            Swal.fire({
+                icon: 'error',
+                title: 'Oops...',
+                text: '<?= session()->getFlashdata('error'); ?>',
+                timer: 3000,
+            });
+        </script>
+    <?php endif; ?>
 
     <?= $this->renderSection('javascript') ?>
 

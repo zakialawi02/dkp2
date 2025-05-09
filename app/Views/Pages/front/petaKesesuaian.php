@@ -19,6 +19,8 @@
 <?php $this->section('css') ?>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ol@v10.3.1/ol.css">
 
+<link rel="stylesheet" href="<?= base_url('assets/css/map.css'); ?>">
+
 <style>
     ::-webkit-scrollbar {
         width: .4rem;
@@ -37,330 +39,6 @@
     #map {
         width: 100%;
         height: calc(100vh - 55px);
-    }
-
-    #topLeft {
-        position: absolute;
-        top: 5px;
-        left: 5px;
-        width: max-content;
-    }
-
-    #topRight {
-        position: absolute;
-        top: 5px;
-        right: 5px;
-        width: max-content;
-    }
-
-    #bottomLeft {
-        position: absolute;
-        bottom: 5px;
-        left: 5px;
-        width: max-content;
-    }
-
-    #bottomRight {
-        position: absolute;
-        bottom: 5px;
-        right: 5px;
-        width: max-content;
-    }
-
-
-    /* Mouse Position */
-    .ol-custom-mouse-position {
-        padding: 0.3rem 0.5rem;
-        background-color: #ffffff;
-        border-radius: 5px;
-        color: #303030;
-        font-size: 0.8rem;
-    }
-
-    /* Scaleline */
-    .ol-scale-line {
-        max-width: 200px;
-        background-color: #ffffff;
-        padding: 0.2rem 0.8rem;
-    }
-
-    .ol-scale-line-inner {
-        display: flex;
-        border: 0 solid grey;
-        transition: none;
-    }
-
-    /* attribution */
-    .ol-attribution {
-        top: auto;
-        bottom: 0;
-        left: auto;
-        right: 0;
-        width: max-content;
-        max-width: max-content;
-    }
-
-    /* Zoom Toggle */
-    .ol-custom-zoom {
-        bottom: 30px;
-        right: 0;
-        font-size: 1.2rem;
-        border-radius: 5px;
-    }
-
-    .ol-custom-zoom-in {
-        background-image: url("data:image/svg+xml,%3Csvg class='w-6 h-6 text-gray-800 dark:text-white' aria-hidden='true' xmlns='http://www.w3.org/2000/svg' width='24' height='24' fill='none' viewBox='0 0 24 24'%3E%3Cpath stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M5 12h14m-7 7V5'/%3E%3C/svg%3E%0A");
-        background-repeat: no-repeat no-repeat;
-        background-position: center center;
-        background-size: cover;
-        padding: 0.8rem;
-    }
-
-    .ol-custom-zoom-out {
-        background-image: url("data:image/svg+xml,%3Csvg class='w-6 h-6 text-gray-800 dark:text-white' aria-hidden='true' xmlns='http://www.w3.org/2000/svg' width='24' height='24' fill='none' viewBox='0 0 24 24'%3E%3Cpath stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M5 12h14'/%3E%3C/svg%3E%0A");
-        background-repeat: no-repeat no-repeat;
-        background-position: center center;
-        background-size: cover;
-        padding: 0.8rem;
-    }
-
-    /* minimap */
-    .ol-custom-overviewmap,
-    .ol-custom-overviewmap.ol-uncollapsible {
-        top: auto;
-        bottom: 30px;
-        left: auto;
-        right: 30px;
-    }
-
-    .ol-custom-overviewmap button {
-        padding: 0.7rem;
-        font-size: 1.2rem;
-    }
-
-    .ol-custom-overviewmap:not(.ol-collapsed) button {
-        top: 0;
-        bottom: auto;
-        left: 0;
-        right: auto;
-    }
-
-    .ol-custom-overviewmap span {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-    }
-
-    .ol-custom-overviewmap:not(.ol-collapsed) {
-        border: 1px solid black;
-    }
-
-    .ol-custom-overviewmap .ol-overviewmap-map {
-        border: none;
-        width: 15rem;
-    }
-
-    .ol-custom-overviewmap .ol-overviewmap-box {
-        border: 2px solid red;
-    }
-
-    .ol-tooltip {
-        position: relative;
-        background: rgba(0, 0, 0, 0.5);
-        border-radius: 4px;
-        color: white;
-        padding: 4px 8px;
-        opacity: 0.7;
-        white-space: nowrap;
-        font-size: 12px;
-        cursor: default;
-        user-select: none;
-    }
-
-    .ol-tooltip-measure {
-        opacity: 1;
-        font-weight: bold;
-    }
-
-    .ol-tooltip-static {
-        background-color: #ffcc33;
-        color: black;
-        border: 1px solid white;
-    }
-
-    .ol-tooltip-measure:before,
-    .ol-tooltip-static:before {
-        border-top: 6px solid rgba(0, 0, 0, 0.5);
-        border-right: 6px solid transparent;
-        border-left: 6px solid transparent;
-        content: "";
-        position: absolute;
-        bottom: -6px;
-        margin-left: -7px;
-        left: 50%;
-    }
-
-    .ol-tooltip-static:before {
-        border-top-color: #ffcc33;
-    }
-
-
-    .basemap-switcher {
-        position: absolute;
-        bottom: 50px;
-        left: 5px;
-        background: white;
-        padding: 6px;
-        border-radius: 5px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-        z-index: 5;
-    }
-
-    .basemap-options {
-        display: none;
-        flex-direction: row;
-        gap: 6px;
-        margin-left: 8px;
-    }
-
-    .basemap-switcher:hover .basemap-options {
-        display: flex;
-    }
-
-    .basemap-option {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        padding: 5px;
-        cursor: pointer;
-        border-radius: 5px;
-        transition: background 0.3s;
-    }
-
-    .basemap-option img {
-        width: 50px;
-        height: 50px;
-        border-radius: 4px;
-    }
-
-    .basemap-option input[type="radio"] {
-        display: none;
-    }
-
-    .basemap-switcher span {
-        font-size: 11px;
-    }
-
-    .basemap-option.active {
-        background: rgba(0, 0, 0, 0.1);
-    }
-
-    .trigger-basemap {
-        cursor: pointer;
-    }
-
-
-
-    .layer-panel {
-        position: fixed;
-        top: 90px;
-        left: 65px;
-        min-width: 200px;
-        max-width: 300px;
-        background: #fff;
-        padding: 10px;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        border-radius: 5px;
-        z-index: 10;
-        max-height: 32rem;
-        transition: transform 0.3s ease-in-out;
-        transform: translateX(-200%);
-    }
-
-    .layer-panel.show {
-        display: block;
-        transform: translateX(0);
-    }
-
-    .layer-panel-header,
-    .measurement-panel-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-
-
-
-    .layer-panel-body {
-        padding: 6px;
-        max-height: 28rem;
-        overflow: auto;
-    }
-
-    .measurement-panel {
-        position: fixed;
-        top: 130px;
-        left: 65px;
-        background: #fff;
-        padding: 10px;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        border-radius: 5px;
-        z-index: 10;
-        transition: transform 0.3s ease-in-out;
-        transform: translateX(-200%);
-        max-height: 20rem;
-        overflow: hidden;
-    }
-
-    .measurement-panel.show {
-        display: block;
-        transform: translateX(0);
-    }
-
-    .cek-kesesuaian-panel {
-        position: fixed;
-        top: 90px;
-        right: 15px;
-        min-width: 25rem;
-        max-width: 35rem;
-        background: #fff;
-        padding: 10px;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        border-radius: 5px;
-        z-index: 10;
-        max-height: 35rem;
-        transition: transform 0.3s ease-in-out;
-        transform: translateX(200%);
-    }
-
-    .cek-kesesuaian-panel.show {
-        display: block;
-        transform: translateX(0);
-    }
-
-    .cek-kesesuaian-panel-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-
-    .cek-kesesuaian-panel-body {
-        font-size: 12px;
-        padding-top: 6px;
-        overflow-y: auto;
-        overflow-x: hidden;
-        max-height: 25rem;
-    }
-
-    .symbology kkprl-layer {
-        display: block;
-        font-size: 14px;
-        color: #000000;
-        padding-bottom: 1px;
     }
 </style>
 <?php $this->endSection() ?>
@@ -516,22 +194,20 @@
                         </div>
                     </div>
 
-                    <div class="p-1" style="border-top: 1px dotted rgb(130, 130, 130);"></div>
-
                     <div class="form-group pb-1">
                         <div class="row">
                             <div class="col-md-6 mb-1">
                                 <b>Longitude</b><br>
                                 <div class="row">
-                                    <div class="col-md-3" style="padding-right:2px">
+                                    <div class="col-md-3">
                                         Degree<br>
                                         <input id="md1_1" disabled value="117" type="text" class="form-control form-control-sm dms-input" alt="posisi X">
                                     </div>
-                                    <div class="col-md-3" style="padding-left:2px;padding-right:2px">
+                                    <div class="col-md-3">
                                         Minute<br>
                                         <input id="md1_2" disabled value="2" type="text" class="form-control form-control-sm dms-input" alt="posisi X">
                                     </div>
-                                    <div class="col-md-3" style="padding-left:2px;padding-right:2px">
+                                    <div class="col-md-3">
                                         Second<br>
                                         <input id="md1_3" disabled value="24" type="text" class="form-control form-control-sm dms-input" alt="posisi X">
                                     </div>
@@ -541,15 +217,15 @@
                             <div class="col-md-6 mb-1">
                                 <b>Latitude</b><br>
                                 <div class="row">
-                                    <div class="col-md-3" style="padding-right:2px">
+                                    <div class="col-md-3">
                                         Degree<br>
                                         <input id="md2_1" disabled value="-1" type="text" class="form-control form-control-sm dms-input" alt="posisi Y">
                                     </div>
-                                    <div class="col-md-3" style="padding-left:2px;padding-right:2px">
+                                    <div class="col-md-3">
                                         Minute<br>
                                         <input id="md2_2" disabled value="10" type="text" class="form-control form-control-sm dms-input" alt="posisi Y">
                                     </div>
-                                    <div class="col-md-3" style="padding-left:2px;padding-right:2px">
+                                    <div class="col-md-3">
                                         Second<br>
                                         <input id="md2_3" disabled value="32" type="text" class="form-control form-control-sm dms-input" alt="posisi Y">
                                     </div>
@@ -557,6 +233,9 @@
                             </div>
                         </div>
                     </div>
+
+                    <div class="p-1" style="border-top: 1px dotted rgb(130, 130, 130);"></div>
+
                 </div>
             </div>
         </div>
@@ -574,15 +253,74 @@
             </div>
 
             <div class="float-end">
-                <button type="button" class="btn btn-sm btn-primary m-2 d-none" id="nextStepByFile">Lanjut</button>
-                <button type="button" class="btn btn-sm btn-primary m-2" id="nextStep">Lanjut</button>
+                <button type="button" class="btn btn-sm btn-primary d-none" id="nextStepByFile">Lanjut</button>
+                <button type="button" class="btn btn-sm btn-outline-primary" id="previewInput">Preview</button>
+                <button type="button" class="btn btn-sm btn-primary" id="nextStep">Lanjut</button>
             </div>
         </div>
     </div>
 
     <div class="d-none" id="secondStep">
-        <div class="float-end">
-            <button type="button" class="btn btn-sm btn-primary m-2" id="backToFirst">Kembali</button>
+        <div class="cek-kesesuaian-panel-body px-1" style="font-size: 0.94rem !important;">
+            <div id="intersectResult" class="mb-2 small">
+                <p class="form-text small text-muted">*Zona Yang Saling Tumpang Tindih Dengan Lokasi Geometry</p>
+                <div class="table-responsive">
+                    <table class="table align-middle" width="100%">
+                        <tbody>
+                            <tr>
+                                <td class="thead">Nama Objek</td>
+                                <td class="tspace">:</td>
+                                <td class="zona">
+                                    Zona Perikanan Tangkap <br>
+                                    Zona Pelabuhan Umum <br>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="thead">Kawasan</td>
+                                <td class="tspace">:</td>
+                                <td class="kawasan">
+                                    Kawasan Pemanfaatan Umum <br>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="thead">Kode</td>
+                                <td class="tspace">:</td>
+                                <td class="kode">
+                                    KPU-PT-10 <br>
+                                    KPU-PL-06 <br>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <form action="/data/isiAjuan" id="formCekKesesuaian" method="post" enctype="multipart/form-data">
+                    <?= csrf_field(); ?>
+
+                    <input type="hidden" class="form-control" for="geojson" id="geojson" name="geojson" value="">
+                    <input type="hidden" class="form-control" for="getOverlap" id="getOverlap" name="getOverlap" value="">
+                    <input type="hidden" class="form-control" for="getOverlapProperties" id="getOverlapProperties" name="getOverlapProperties" value="">
+                    <input type="hidden" class="form-control" for="idZona" id="idZona" name="idZona" value="">
+                    <input type="hidden" class="form-control" for="hasilStatus" id="hasilStatus" name="hasilStatus" value="">
+
+                    <div class="form-group">
+                        <label class="col-md-12 mb-2">Jenis Kegiatan</label>
+                        <select class="form-select form-select-sm" id="pilihKegiatan" name="kegiatan" for="kegiatan" style="width: 100%;" onchange="cek()" required>
+                            <option>-- Pilih Jenis Kegiatan --</option>
+                            <?php foreach ($jenisKegiatan as $K) : ?>
+                                <option value="<?= $K->id_kegiatan; ?>"><?= esc($K->nama_kegiatan); ?></option>
+                            <?php endforeach ?>
+                        </select>
+                    </div>
+                    <div class="feedback small">Keterangan:</div>
+                    <div class="float-start small">
+                        <div class="" id="showKeteranganKegiatan"> - </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="float-end mt-2">
+            <button type="button" class="btn btn-sm btn-secondary mb-2" id="backToFirst">Kembali</button>
+            <button type="button" class="btn btn-sm btn-primary mb-2" id="lanjutKirim" onclick="kirim()">Lanjut</button>
         </div>
     </div>
 </div>
@@ -654,6 +392,7 @@
         <div class="position-relative" id="attribution"></div>
     </div>
 </section>
+<?php $this->endSection() ?>
 
 <?php $this->section('javascript') ?>
 <script src="https://cdn.jsdelivr.net/npm/ol@v10.3.1/dist/ol.js"></script>
@@ -662,6 +401,13 @@
 <script src="https://unpkg.com/shpjs@latest/dist/shp.min.js"></script>
 <script lang="javascript" src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js" integrity="sha512-XMVd28F1oH/O71fzwBnV7HucLxVwtxf26XV8P4wPk26EDxuGZ91N8bsOttmnomcCD3CS5ZMRL50H0GgOHvegtg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+<script>
+    $('#pilihKegiatan').select2({
+        placeholder: "Pilih Jenis Kegiatan",
+        allowClear: true
+    });
+</script>
 
 
 <script>
@@ -748,10 +494,15 @@
     let MERCATOR = new Projection("EPSG:3857");
     let UTM49S = new Projection("EPSG:32649");
 
+    <?php
+    list($lon, $lat) = explode(', ', $tampilData->coordinat_wilayah);
+    $zoomView = $tampilData->zoom_view;
+    ?>
+
     // Init View
     const view = new View({
         // projection: "EPSG:4326",
-        center: fromLonLat([117.83872038517481, -0.31515712103976057]),
+        center: fromLonLat([<?= $lat; ?>, <?= $lon; ?>]),
         zoom: 8,
     });
 
@@ -1225,32 +976,32 @@
         KKPRL_LAYER.getLayers().push(layer);
     });
 
-    const kkp = new LayerGroup({
-        title: "KKPRL DKP KALTIM 2023",
-        layers: [
-            new TileLayer({
-                source: new TileWMS({
-                    title: "KKPRL DKP KALTIM 2023",
-                    url: "<?= $_ENV['BASE_URL_GEOSERVER'] ?>/KKPRL/wms",
-                    attributions: "KKPRL DKP KALTIM 2023",
-                    params: {
-                        LAYERS: "KKPRL:KKPRL_KALTIM_05_01_2023_FIX",
-                        TILED: true,
-                        FORMAT: "image/png",
-                        TRANSPARENT: true,
-                        TIMESTAMP: new Date().getTime(),
-                        CQL_FILTER: "NAMOBJ='Zona Pelabuhan Umum'", // filter hanya data dengan attribute property table
-                    },
-                    serverType: "geoserver",
-                    crossOrigin: "anonymous",
-                }),
-                visible: true,
-                opacity: 0.8,
-                zIndex: 20,
-            }),
-        ],
-    });
-    map.addLayer(kkp);
+    // const kkp = new LayerGroup({
+    //     title: "KKPRL DKP KALTIM 2023",
+    //     layers: [
+    //         new TileLayer({
+    //             source: new TileWMS({
+    //                 title: "KKPRL DKP KALTIM 2023",
+    //                 url: "<?= $_ENV['BASE_URL_GEOSERVER'] ?>/KKPRL/wms",
+    //                 attributions: "KKPRL DKP KALTIM 2023",
+    //                 params: {
+    //                     LAYERS: "KKPRL:KKPRL_KALTIM_05_01_2023_FIX",
+    //                     TILED: true,
+    //                     FORMAT: "image/png",
+    //                     TRANSPARENT: true,
+    //                     TIMESTAMP: new Date().getTime(),
+    //                     CQL_FILTER: "NAMOBJ='Zona Pelabuhan Umum'", // filter hanya data dengan attribute property table
+    //                 },
+    //                 serverType: "geoserver",
+    //                 crossOrigin: "anonymous",
+    //             }),
+    //             visible: true,
+    //             opacity: 0.8,
+    //             zIndex: 20,
+    //         }),
+    //     ],
+    // });
+    // map.addLayer(kkp);
 
     const toggleLayerVisibility = (layerName, checked) => {
         const name = layerName.split(":")[1];
@@ -1308,6 +1059,7 @@
         $('#coordinateToogle').removeClass('d-none');
         $('.input-by-file').addClass('d-none');
         $('#nextStepByFile').addClass('d-none');
+        $('#drawPolygonField').addClass('d-none');
         $('#nextStep').removeClass('d-none');
     });
     $("#coord_dms").click(function() {
@@ -1388,22 +1140,20 @@
                         </div>
                     </div>
 
-                    <div class="p-1" style="border-top: 1px dotted rgb(130, 130, 130);"></div>
-
                     <div class="form-group pb-1">
                         <div class="row">
                             <div class="col-md-6 mb-1">
                                 <b>Longitude</b><br>
                                 <div class="row">
-                                    <div class="col-md-3" style="padding-right:2px">
+                                    <div class="col-md-3">
                                         Degree<br>
                                         <input id="md1_1" disabled value="117" type="text" class="form-control form-control-sm dms-input" alt="posisi X">
                                     </div>
-                                    <div class="col-md-3" style="padding-left:2px;padding-right:2px">
+                                    <div class="col-md-3">
                                         Minute<br>
                                         <input id="md1_2" disabled value="2" type="text" class="form-control form-control-sm dms-input" alt="posisi X">
                                     </div>
-                                    <div class="col-md-3" style="padding-left:2px;padding-right:2px">
+                                    <div class="col-md-3">
                                         Second<br>
                                         <input id="md1_3" disabled value="24" type="text" class="form-control form-control-sm dms-input" alt="posisi X">
                                     </div>
@@ -1413,15 +1163,15 @@
                             <div class="col-md-6 mb-1">
                                 <b>Latitude</b><br>
                                 <div class="row">
-                                    <div class="col-md-3" style="padding-right:2px">
+                                    <div class="col-md-3">
                                         Degree<br>
                                         <input id="md2_1" disabled value="-1" type="text" class="form-control form-control-sm dms-input" alt="posisi Y">
                                     </div>
-                                    <div class="col-md-3" style="padding-left:2px;padding-right:2px">
+                                    <div class="col-md-3">
                                         Minute<br>
                                         <input id="md2_2" disabled value="10" type="text" class="form-control form-control-sm dms-input" alt="posisi Y">
                                     </div>
-                                    <div class="col-md-3" style="padding-left:2px;padding-right:2px">
+                                    <div class="col-md-3">
                                         Second<br>
                                         <input id="md2_3" disabled value="32" type="text" class="form-control form-control-sm dms-input" alt="posisi Y">
                                     </div>
@@ -1429,6 +1179,9 @@
                             </div>
                         </div>
                     </div>
+
+                    <div class="p-1" style="border-top: 1px dotted rgb(130, 130, 130);"></div>
+
                 </div>
             `;
 
@@ -1609,12 +1362,12 @@
      ** jsonCoordinatesInput: Array containing input coordinates from the form
      ** geometryData: Array containing geometry data (featuresCollection) created from input coordinates
      ** geojsonFeature: Array containing feature data created from geometryData
-     ** geojsonData: Array containing feature data created from geojsonFeature
+     ** GEOJSON_DATA: Array containing feature data created from geojsonFeature
      ** geojsonArea: Area value if the input is a POLYGON
      ** drawingRunning: Boolean value indicating if drawing is in progress
      ** drawed: Boolean value indicating if drawing is completed
      */
-    let dataType, jsonCoordinatesInput, geometryData, geojsonFeature, geojsonData, geojsonArea;
+    let dataType, jsonCoordinatesInput, geometryData, geojsonFeature, GEOJSON_DATA, geojsonArea;
     let drawingRunning = null;
     let drawed;
 
@@ -1770,130 +1523,24 @@
         map.addOverlay(measureTooltip);
     }
 
+    // Parameter GeoServer RES/REQ KKPRL RTRW
+    const GEOSERVER_URL = "<?= $_ENV['BASE_URL_GEOSERVER'] ?>";
+    const WORKSPACE = "KKPRL";
+    const LAYER_NAME = "KKPRL_RTRW_KALTIM_JOINTABLEWITH_RZWP";
+    let INTERSECT_RESULT, INTERSECT_RESULT_PROPERTIES, INTERSECT_RESULT_PROPERTIES_UNIQUE;
 
-    /**
-     * Function to handle button "Lanjut" in the first step
-     * This function will be executed when the user clicks the "Lanjut" button in the first step
-     * It will clear the data from the draw source and get the coordinates from the input fields
-     * Then it will check the type of data (POINT, LINESTRING, POLYGON) and create the geojson feature accordingly
-     * Finally it will add the feature to the draw source and fit the map to the extent of the feature
-     */
+
     $("#nextStep").click(function(e) {
-        e.preventDefault();
-        vectorSourceDraw.clear(); // Hapus data sebelumnya
-
-        jsonCoordinatesInput = [];
-        geometryData = [];
-        geojsonFeature = [];
-        geojsonData = [];
-        const selectedCounter = coordinateCount;
-        dataType = $("input[name='dataType']:checked").val();
-        // Ambil nilai koordinat
-        $('.coordinate-field').each(function() {
-            if ($("#coord_dms").is(":checked")) {
-                let degree1 = $(this).find('#md1_1').val();
-                let minute1 = $(this).find('#md1_2').val();
-                let second1 = $(this).find('#md1_3').val();
-                let degree2 = $(this).find('#md2_1').val();
-                let minute2 = $(this).find('#md2_2').val();
-                let second2 = $(this).find('#md2_3').val();
-
-                if (degree1 == '') degree1 = '0';
-                if (minute1 == '') minute1 = '0';
-                if (second1 == '') second1 = '0';
-                if (minute1 < 0) minute1 = -minute1;
-                if (second1 < 0) second1 = -second1;
-                if (degree1 < 0 || degree1 == '-0') {
-                    minute1 = -minute1;
-                    second1 = -second1;
-                }
-                if (degree2 == '') degree2 = '0';
-                if (minute2 == '') minute2 = '0';
-                if (second2 == '') second2 = '0';
-                if (minute2 < 0) minute2 = -minute2;
-                if (second2 < 0) second2 = -second2;
-                if (degree2 < 0 || degree2 == '-0') {
-                    minute2 = -minute2;
-                    second2 = -second2;
-                }
-
-                let longitude = parseFloat(degree1) + parseFloat((minute1) / 60) + parseFloat((second1) / 3600);
-                let latitude = parseFloat(degree2) + parseFloat((minute2) / 60) + parseFloat((second2) / 3600);
-                jsonCoordinatesInput.push([longitude, latitude]);
-            } else {
-                const longitudeInput = parseFloat($(this).find('#tx_x').val());
-                const latitudeInput = parseFloat($(this).find('#tx_y').val());
-                jsonCoordinatesInput.push([longitudeInput, latitudeInput]);
-            }
-        });
-        console.log(jsonCoordinatesInput);
-        if (dataType == 'POINT') {
-            jsonCoordinatesInput.map((item) => {
-                var geometry = {
-                    type: "Point",
-                    coordinates: item
-                };
-                geometryData.push(geometry);
-                var feature = turf.feature(geometry);
-                geojsonFeature.push(feature);
-            })
-            var collection = turf.featureCollection(geojsonFeature);
-            geojsonData.push(collection);
-        } else if (dataType == 'LINESTRING') {
-            if (jsonCoordinatesInput.length < 2) {
-                alert('Minimal 2 koordinat');
-                return false;
-            }
-            var geometry = {
-                type: "LineString",
-                coordinates: jsonCoordinatesInput
-            };
-            var feature = turf.feature(geometry);
-            var collection = turf.featureCollection([feature]);
-            geometryData.push(geometry);
-            geojsonFeature.push(feature);
-            geojsonData.push(collection);
-        } else if (dataType == 'POLYGON') {
-            if (jsonCoordinatesInput.length < 3) {
-                alert('Minimal 3 koordinat');
-                return false;
-            }
-            jsonCoordinatesInput.push(jsonCoordinatesInput[0]);
-            var geometry = {
-                type: "Polygon",
-                coordinates: [jsonCoordinatesInput]
-            };
-            var feature = turf.feature(geometry);
-            var collection = turf.featureCollection([feature]);
-            geometryData.push(geometry);
-            geojsonFeature.push(feature);
-            geojsonData.push(collection);
-        }
-        console.log(geojsonFeature);
-        console.log(geojsonData);
-
-        if (geojsonData.length > 0) {
-            geojsonData.forEach(data => {
-                const features = new GeoJSON().readFeatures(data, {
-                    featureProjection: 'EPSG:4326' // Proyeksi peta geografis
+        displayInputToMap().then(() => {
+            checkIntersectionWithGeoServer(GEOJSON_DATA, GEOSERVER_URL, WORKSPACE, LAYER_NAME)
+                .then(hasIntersection => {
+                    if (hasIntersection) {
+                        console.log("Ada fitur yang tumpang tindih di GeoServer!");
+                    } else {
+                        console.log("Tidak ada fitur yang tumpang tindih.");
+                    }
                 });
-                features.forEach(feature => {
-                    const geometry = feature.getGeometry();
-                    geometry.transform('EPSG:4326', 'EPSG:3857');
-                });
-                vectorSourceDraw.addFeatures(features);
-            });
-
-            if (vectorSourceDraw.getFeatures().length > 0) {
-                const extent = vectorSourceDraw.getExtent();
-                map.getView().fit(extent, {
-                    duration: 1000,
-                    padding: [100, 100, 100, 100],
-                    minResolution: map.getView().getResolutionForZoom(17),
-                });
-            }
-        }
-
+        })
         $("#firstStep").addClass("d-none");
         $("#secondStep").removeClass("d-none");
     });
@@ -1902,6 +1549,418 @@
         $("#firstStep").removeClass("d-none");
         $("#secondStep").addClass("d-none");
     });
+
+    $("#previewInput").click(function(e) {
+        displayInputToMap();
+    });
+
+    function displayInputToMap() {
+        return new Promise((resolve, reject) => {
+            try {
+                vectorSourceDraw.clear(); // Hapus data sebelumnya
+
+                jsonCoordinatesInput = [];
+                geometryData = [];
+                geojsonFeature = [];
+                GEOJSON_DATA = [];
+                const selectedCounter = coordinateCount;
+                dataType = $("input[name='dataType']:checked").val();
+
+                // Ambil nilai koordinat
+                $('.coordinate-field').each(function() {
+                    if ($("#coord_dms").is(":checked")) {
+                        let degree1 = $(this).find('#md1_1').val();
+                        let minute1 = $(this).find('#md1_2').val();
+                        let second1 = $(this).find('#md1_3').val();
+                        let degree2 = $(this).find('#md2_1').val();
+                        let minute2 = $(this).find('#md2_2').val();
+                        let second2 = $(this).find('#md2_3').val();
+
+                        // Validasi data DMS
+                        if (degree1 == '') degree1 = '0';
+                        if (minute1 == '') minute1 = '0';
+                        if (second1 == '') second1 = '0';
+                        if (minute1 < 0) minute1 = -minute1;
+                        if (second1 < 0) second1 = -second1;
+                        if (degree1 < 0 || degree1 == '-0') {
+                            minute1 = -minute1;
+                            second1 = -second1;
+                        }
+                        if (degree2 == '') degree2 = '0';
+                        if (minute2 == '') minute2 = '0';
+                        if (second2 == '') second2 = '0';
+                        if (minute2 < 0) minute2 = -minute2;
+                        if (second2 < 0) second2 = -second2;
+                        if (degree2 < 0 || degree2 == '-0') {
+                            minute2 = -minute2;
+                            second2 = -second2;
+                        }
+
+                        let longitude = parseFloat(degree1) + parseFloat((minute1) / 60) + parseFloat((second1) / 3600);
+                        let latitude = parseFloat(degree2) + parseFloat((minute2) / 60) + parseFloat((second2) / 3600);
+                        jsonCoordinatesInput.push([longitude, latitude]);
+                    } else {
+                        const longitudeInput = parseFloat($(this).find('#tx_x').val());
+                        const latitudeInput = parseFloat($(this).find('#tx_y').val());
+                        jsonCoordinatesInput.push([longitudeInput, latitudeInput]);
+                    }
+                });
+                console.log(jsonCoordinatesInput);
+
+                // Proses GeoJSON berdasarkan tipe data
+                if (dataType == 'POINT') {
+                    jsonCoordinatesInput.map((item) => {
+                        var geometry = {
+                            type: "Point",
+                            coordinates: item
+                        };
+                        geometryData.push(geometry);
+                        var feature = turf.feature(geometry);
+                        geojsonFeature.push(feature);
+                    })
+                    var collection = turf.featureCollection(geojsonFeature);
+                    GEOJSON_DATA.push(collection);
+                } else if (dataType == 'LINESTRING') {
+                    if (jsonCoordinatesInput.length < 2) {
+                        alert('Minimal 2 koordinat');
+                        reject('Error: Minimal 2 koordinat'); // Reject jika error
+                        return false;
+                    }
+                    var geometry = {
+                        type: "LineString",
+                        coordinates: jsonCoordinatesInput
+                    };
+                    var feature = turf.feature(geometry);
+                    var collection = turf.featureCollection([feature]);
+                    geometryData.push(geometry);
+                    geojsonFeature.push(feature);
+                    GEOJSON_DATA.push(collection);
+                } else if (dataType == 'POLYGON') {
+                    if (jsonCoordinatesInput.length < 3) {
+                        alert('Minimal 3 koordinat');
+                        reject('Error: Minimal 3 koordinat'); // Reject jika error
+                        return false;
+                    }
+                    jsonCoordinatesInput.push(jsonCoordinatesInput[0]);
+                    var geometry = {
+                        type: "Polygon",
+                        coordinates: [jsonCoordinatesInput]
+                    };
+                    var feature = turf.feature(geometry);
+                    var collection = turf.featureCollection([feature]);
+                    geometryData.push(geometry);
+                    geojsonFeature.push(feature);
+                    GEOJSON_DATA.push(collection);
+                }
+
+                console.log(geojsonFeature);
+                console.log(GEOJSON_DATA);
+
+                if (GEOJSON_DATA.length > 0) {
+                    GEOJSON_DATA.forEach(data => {
+                        const features = new GeoJSON().readFeatures(data, {
+                            featureProjection: 'EPSG:4326'
+                        });
+                        features.forEach(feature => {
+                            const geometry = feature.getGeometry();
+                            geometry.transform('EPSG:4326', 'EPSG:3857');
+                        });
+                        vectorSourceDraw.addFeatures(features);
+                    });
+
+                    if (vectorSourceDraw.getFeatures().length > 0) {
+                        const extent = vectorSourceDraw.getExtent();
+                        map.getView().fit(extent, {
+                            duration: 1000,
+                            padding: [100, 100, 100, 100],
+                            minResolution: map.getView().getResolutionForZoom(17),
+                        });
+                    }
+                }
+
+                resolve(); // Promise resolved
+            } catch (error) {
+                reject(error); // Jika ada error, reject Promise
+            }
+        });
+    }
+
+
+    /**
+     * Check if the GeoJSON data intersects with data in the given GeoServer layer
+     * 
+     * This function takes GeoJSON data, GeoServer URL, workspace and layer name as input.
+     * It will return a boolean value indicating whether there is an intersection or not.
+     * If there is an intersection, the intersecting features will be stored in the global
+     * variable INTERSECT_RESULT and their properties will be stored in the global variable
+     * INTERSECT_RESULT_PROPERTIES.
+     * 
+     * @param {Object} GEOJSON_DATA The GeoJSON data to check for intersection
+     * @param {string} GEOSERVER_URL The URL of the GeoServer instance
+     * @param {string} WORKSPACE The workspace name in GeoServer
+     * @param {string} LAYER_NAME The layer name in GeoServer
+     * @return {Promise.<boolean>} A promise resolving to a boolean indicating whether there is an intersection or not
+     */
+    function checkIntersectionWithGeoServer(GEOJSON_DATA, GEOSERVER_URL, WORKSPACE, LAYER_NAME) {
+        $(".zona").html(loaderSpinner);
+        $(".kawasan").html(loaderSpinner);
+        $(".kode").html(loaderSpinner);
+
+        // Konversi GeoJSON Geometry ke WKT tanpa Z
+        function geojsonToWKT(geometry) {
+            let wkt = "";
+
+            // Fungsi untuk membersihkan koordinat (menghapus nilai Z)
+            function cleanCoordinates(coords) {
+                return coords.map(coord => coord.slice(0, 2)); // Ambil hanya [X, Y]
+            }
+
+            switch (geometry.type) {
+                case "Point":
+                    let pointCoords = cleanCoordinates([geometry.coordinates]); // Pastikan format array
+                    wkt = `POINT(${pointCoords[0].join(" ")})`;
+                    break;
+
+                case "LineString":
+                    let lineCoords = cleanCoordinates(geometry.coordinates);
+                    wkt = `LINESTRING(${lineCoords.map(coord => coord.join(" ")).join(", ")})`;
+                    break;
+
+                case "Polygon":
+                    let polygonCoords = cleanCoordinates(geometry.coordinates[0]); // Ambil ring luar saja
+                    wkt = `POLYGON((${polygonCoords.map(coord => coord.join(" ")).join(", ")}))`;
+                    break;
+
+                default:
+                    console.error("Unsupported GeoJSON type:", geometry.type);
+                    return null;
+            }
+            return wkt;
+        }
+
+        INTERSECT_RESULT = [];
+        INTERSECT_RESULT_PROPERTIES = [];
+
+        // Buat CQL Filter INTERSECTS untuk semua fitur di GeoJSON
+        let wktArray = GEOJSON_DATA[0].features.map(feature => {
+            let wkt = geojsonToWKT(feature.geometry);
+            return wkt ? `INTERSECTS(the_geom, ${wkt})` : null;
+        }).filter(wkt => wkt !== null); // Hapus jika ada nilai null
+
+        let cqlFilter = wktArray.join(" OR ");
+        let encodedFilter = encodeURIComponent(cqlFilter);
+
+        // Buat URL WFS dengan CQL Filter
+        let wfsUrl = `${GEOSERVER_URL}/wfs?` +
+            `service=WFS&version=1.0.0&request=GetFeature&` +
+            `typeName=${WORKSPACE}:${LAYER_NAME}&` +
+            `outputFormat=application/json&srsname=EPSG:4326&` +
+            `cql_filter=${encodedFilter}`;
+
+        // Fetch data dari GeoServer
+        return fetch(wfsUrl)
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+                if (data?.features?.length > 0) {
+                    console.log("Terdapat tumpang tindih:", data?.features);
+                    INTERSECT_RESULT.push(data?.features);
+                    let properties = extractFeatureProperties(data?.features);
+                    INTERSECT_RESULT_PROPERTIES.push(properties);
+                    displayResultPropertiesInTable(properties);
+                    console.log(INTERSECT_RESULT_PROPERTIES_UNIQUE);
+                    return true;
+                } else {
+                    console.log("Tidak ada tumpang tindih.");
+                    let properties = extractFeatureProperties(data?.features);
+                    displayResultPropertiesInTable(properties);
+                    return false;
+                }
+            })
+            .catch(error => {
+                console.error("Error fetching WFS:", error);
+                return false;
+            });
+    }
+
+    /**
+     * Extracts properties from a GeoJSON feature array
+     * 
+     * This function takes an array of GeoJSON features and extracts the properties
+     * KODKWS, JNSRPR and NAMOBJ from each feature. If any of the properties are
+     * not present in a feature, the function will insert a null value in its place.
+     * 
+     * @param {Object[]} geojsonResponse The array of GeoJSON features
+     * @return {Object[]} An array of objects containing the extracted properties
+     */
+    function extractFeatureProperties(geojsonResponse) {
+        if (!Array.isArray(geojsonResponse)) {
+            console.error("Input harus berupa array GeoJSON features.");
+            return [];
+        }
+
+        return geojsonResponse.map(feature => {
+            return {
+                OBJECTID: feature.properties?.OBJECTID || null,
+                KODKWS: feature.properties?.KODKWS || null,
+                SUBZONA: feature.properties?.SUBZONA || null,
+                JNSRPR: feature.properties?.JNSRPR || null,
+                NAMOBJ: feature.properties?.NAMOBJ || null
+            };
+        });
+    }
+
+    /**
+     * Clean and store the intersection result data
+     * 
+     * This function takes the intersection result data, removes duplicates and stores it in a new variable.
+     * The cleaned data is then returned and also stored in a global variable.
+     * 
+     * @param {Object[]} data The intersection result data
+     * @return {Object} The cleaned data
+     */
+    function cleanUniqueAndStoreData(data) {
+        console.log("data");
+        console.log(data);
+
+        INTERSECT_RESULT_PROPERTIES_UNIQUE = [];
+        // Fungsi untuk menghilangkan duplikat
+        function removeDuplicates(arr) {
+            return [...new Set(arr)];
+        }
+
+        // Simpan hasil yang sudah dihapus duplikatnya ke dalam variabel baru
+        let uniqueObjectIds = removeDuplicates(data.map(item => item.OBJECTID));
+        let uniqueZones = removeDuplicates(data.map(item => item.NAMOBJ));
+        let uniqueSubZones = removeDuplicates(data.map(item => item.SUBZONA2));
+        let uniqueKawasan = removeDuplicates(data.map(item => item.JNSRPR));
+        let uniqueCodes = removeDuplicates(data.map(item => item.KODKWS));
+
+        // Simpan ke dalam variabel yang bisa digunakan di luar function
+        let cleanedData = {
+            objectId: uniqueObjectIds,
+            zones: uniqueZones,
+            subZones: uniqueSubZones,
+            codes: uniqueCodes,
+            kawasan: uniqueKawasan,
+        };
+        INTERSECT_RESULT_PROPERTIES_UNIQUE.push(cleanedData);
+        return cleanedData;
+    }
+
+    /**
+     * Displays the result properties in a table
+     * @param {Object[]} data Object containing the result properties
+     */
+    function displayResultPropertiesInTable(data) {
+        let cleanedData = cleanUniqueAndStoreData(data);
+
+        // Ambil elemen tabel
+        let zonaTd = document.querySelector(".zona");
+        let kawasanTd = document.querySelector(".kawasan");
+        let kodeTd = document.querySelector(".kode");
+
+        // Pengecekan jika data kosong, tampilkan teks default
+        let zonaText = cleanedData.zones.length > 0 ? cleanedData.zones.join("<br>") : "Maaf, Tidak ada data / Tidak terdeteksi";
+        let kawasanText = cleanedData.kawasan.length > 0 ? cleanedData.kawasan.join("<br>") : "Maaf, Tidak ada data / Tidak terdeteksi";
+        let kodeText = cleanedData.codes.length > 0 ? cleanedData.codes.join("<br>") : "-";
+
+        // Masukkan ke dalam tabel
+        zonaTd.innerHTML = zonaText;
+        kawasanTd.innerHTML = kawasanText;
+        kodeTd.innerHTML = kodeText;
+    }
+
+    const isLoggedIn = <?= logged_in() ? 'true' : 'false' ?>;
+
+    function cek() {
+        console.log("cek");
+        // console.log(INTERSECT_RESULT);
+        // console.log(INTERSECT_RESULT_PROPERTIES);
+        // console.log(INTERSECT_RESULT_PROPERTIES_UNIQUE);
+        let csrfToken = $('input[name="csrf_test_name"]').val();
+        let valKegiatan = $('#pilihKegiatan').val();
+        let getOverlapProperties = JSON.stringify(INTERSECT_RESULT_PROPERTIES[0]);
+
+        $.ajax({
+            method: "POST",
+            url: "/data/cekStatus",
+            data: {
+                csrf_test_name: csrfToken,
+                valKegiatan: valKegiatan,
+                getOverlapProperties: getOverlapProperties
+            },
+            dataType: "json",
+            beforeSend: function() {
+                $('#lanjutKirim').prop('disabled', true);
+                $('#showKeteranganKegiatan').html(loaderSpinner);
+            },
+            success: function(response) {
+                // console.log(response);
+                const hasil = response.hasil;
+                const valZona = response.valZona;
+                let hasilStatus = "";
+                $("#idZona").val(valZona);
+                if (hasil.length !== 0) {
+                    const diperbolehkan = hasil.filter(item => item.status === 'diperbolehkan');
+                    const diperbolehkanBersyarat = hasil.filter(item => item.status === 'diperbolehkan bersyarat');
+                    const tidakDiperbolehkan = hasil.filter(item => item.status === 'tidak diperbolehkan');
+                    if (tidakDiperbolehkan.length !== 0) {
+                        $('#lanjutKirim').prop('disabled', !isLoggedIn);
+                        $("#showKeteranganKegiatan").html('<p class="tidakBoleh">Aktivitas yang tidak diperbolehkan</p>');
+                        hasilStatus = "tidak diperbolehkan";
+                    } else if (diperbolehkanBersyarat.length !== 0) {
+                        $('#lanjutKirim').prop('disabled', !isLoggedIn);
+                        $("#showKeteranganKegiatan").html('<p class="bolehBersyarat">Aktivitas diperbolehkan setelah memperoleh izin</p>');
+                        hasilStatus = "diperbolehkan bersyarat";
+                    } else {
+                        $('#lanjutKirim').prop('disabled', !isLoggedIn);
+                        $("#showKeteranganKegiatan").html('<p class="boleh">Aktivitas yang diperbolehkan</p>');
+                        hasilStatus = "diperbolehkan";
+                    }
+                } else {
+                    if (valZona.length === 0) {
+                        $('#lanjutKirim').prop('disabled', !isLoggedIn);
+                        $("#showKeteranganKegiatan").html('<p class="">Diluar Zona KKPRL Kalimantan Timur</p>');
+                        hasilStatus = "Diluar Zona KKPRL Kalimantan Timur";
+                    } else {
+                        $('#lanjutKirim').prop('disabled', !isLoggedIn);
+                        $("#showKeteranganKegiatan").html('<p class="">No Data</p>');
+                        hasilStatus = "No Data";
+                    }
+                }
+
+                $("#hasilStatus").val(hasilStatus);
+            },
+            error: function(error) {
+                console.error("Error:", error);
+                $('#showKeteranganKegiatan').html('-');
+            },
+            complete: function(response) {
+                $('#lanjutKirim').prop('disabled', false);
+                updateCSRFToken(response);
+            }
+
+        });
+    }
+
+    function kirim() {
+        let valKegiatan = $('#pilihKegiatan').val();
+        let hasilStatus = $("#hasilStatus").val();
+        let geojson = GEOJSON_DATA;
+        let getOverlap = INTERSECT_RESULT_PROPERTIES[0];
+        let getOverlapProperties = INTERSECT_RESULT_PROPERTIES_UNIQUE;
+        // console.log("kirim");
+        // console.log(geojson);
+        // console.log(getOverlap);
+        // console.log(INTERSECT_RESULT_PROPERTIES_UNIQUE);
+        // console.log(hasilStatus);
+        $("#geojson").val(JSON.stringify(geojson));
+        $("#getOverlap").val(JSON.stringify(getOverlap));
+        $("#getOverlapProperties").val(JSON.stringify(getOverlapProperties));
+        $("#hasilStatus").val(hasilStatus);
+        $("#formCekKesesuaian").submit();
+    }
 
     /**
      * Function to handle SHP file and add it to the map
@@ -1914,8 +1973,8 @@
         reader.onload = function(event) {
             const arrayBuffer = event.target.result;
             shp(arrayBuffer).then(function(geojson) {
-                geojsonData = [];
-                geojsonData.push(geojson);
+                GEOJSON_DATA = [];
+                GEOJSON_DATA.push(geojson);
 
                 // Tampilkan sistem proyeksi ke alert
                 const crs = geojson.crs ? geojson.crs.properties.name : "Tidak ditemukan"; // Mendapatkan sistem proyeksi
@@ -1936,7 +1995,7 @@
                     minResolution: map.getView().getResolutionForZoom(17),
                 });
                 $("#loadFile").html('');
-                console.log("GeoJSON yang dimuat:", geojsonData[0]);
+                console.log("GeoJSON yang dimuat:", GEOJSON_DATA[0]);
             });
         };
 
@@ -2040,8 +2099,8 @@
                 return;
             }
 
-            geojsonData = [];
-            geojsonData.push(_geojsonData);
+            GEOJSON_DATA = [];
+            GEOJSON_DATA.push(_geojsonData);
 
             // Tambahkan data ke OpenLayers
             const features = new GeoJSON().readFeatures(_geojsonData, {
@@ -2058,7 +2117,7 @@
             });
 
             $("#loadFile").html(""); // Hapus loaderSpinner
-            console.log("GeoJSON dari XLSX:", geojsonData);
+            console.log("GeoJSON dari XLSX:", GEOJSON_DATA);
         };
 
         reader.readAsArrayBuffer(file);
@@ -2085,11 +2144,17 @@
                 return;
             }
 
-            // Konversi fitur ke GeoJSON
+            // Konversi fitur ke GeoJSON & Transformasi setiap fitur ke EPSG:4326
             const geojsonFormat = new ol.format.GeoJSON();
-            let _geojsonData = geojsonFormat.writeFeaturesObject(features);
-            geojsonData = [];
-            geojsonData.push(_geojsonData);
+            let transformedFeatures = features.map(feature => {
+                let clonedFeature = feature.clone();
+                let geom = clonedFeature.getGeometry();
+                geom.transform("EPSG:3857", "EPSG:4326");
+                return clonedFeature;
+            });
+            let _geojsonData = geojsonFormat.writeFeaturesObject(transformedFeatures);
+            GEOJSON_DATA = [];
+            GEOJSON_DATA.push(_geojsonData);
 
             styleKMLKMZ(features);
 
@@ -2169,7 +2234,18 @@
     $("#nextStepByFile").click(function(e) {
         e.preventDefault();
         // Menampilkan log data GeoJSON setelah tombol diklik
-        console.log("Data GeoJSON yang dimuat pada klik Lanjut:", geojsonData[0]);
+        console.log("Data GeoJSON yang dimuat pada klik Lanjut:", GEOJSON_DATA[0]);
+
+        // Cek tumpang tindih dengan data di GeoServer
+        // Panggil fungsi untuk cek intersect
+        checkIntersectionWithGeoServer(GEOJSON_DATA, GEOSERVER_URL, WORKSPACE, LAYER_NAME)
+            .then(hasIntersection => {
+                if (hasIntersection) {
+                    console.log("Ada fitur yang tumpang tindih di GeoServer!");
+                } else {
+                    console.log("Tidak ada fitur yang tumpang tindih.");
+                }
+            });
     });
 
 
@@ -2187,7 +2263,7 @@
 
         // Clear the vector source to remove any existing features
         vectorSourceDraw.clear();
-        geojsonData = [];
+        GEOJSON_DATA = [];
 
         // Remove previous tooltips from the DOM if they exist
         if (measureTooltipElement) {
@@ -2256,15 +2332,15 @@
             // Convert the feature to GeoJSON
             const geojsonFormat = new GeoJSON();
             const geojson = geojsonFormat.writeFeature(feature, {
-                dataProjection: "EPSG:4326", // Output projection
-                featureProjection: "EPSG:3857", // Map's projection (assuming EPSG:3857)
+                dataProjection: "EPSG:4326",
+                featureProjection: "EPSG:3857",
             });
             geojsonFeature = JSON.parse(geojson);
             let featureCollection = {
                 type: "FeatureCollection",
                 features: [geojsonFeature]
             }
-            geojsonData.push(featureCollection);
+            GEOJSON_DATA.push(featureCollection);
 
             drawingEnd();
         });
@@ -2318,9 +2394,23 @@
 
         buttonStateDrawing();
 
-        if (geojsonData.length > 0) {
+        if (GEOJSON_DATA.length > 0) {
             $("#firstStep").addClass("d-none");
             $("#secondStep").removeClass("d-none");
+            console.log("Data GeoJSON yang dimuat:", GEOJSON_DATA[0]);
+
+            // Cek tumpang tindih dengan data di GeoServer
+            // Panggil fungsi untuk cek intersect
+            checkIntersectionWithGeoServer(GEOJSON_DATA, GEOSERVER_URL, WORKSPACE, LAYER_NAME)
+                .then(hasIntersection => {
+                    if (hasIntersection) {
+                        console.log("Ada fitur yang tumpang tindih di GeoServer!");
+                    } else {
+                        console.log("Tidak ada fitur yang tumpang tindih.");
+                    }
+                });
+
+
         }
     }
 
@@ -2370,6 +2460,4 @@
     })
 </script>
 <script src="<?= base_url('assets/js/measureOpenLayers.js') ?>"></script>
-<?php $this->endSection() ?>
-
 <?php $this->endSection() ?>

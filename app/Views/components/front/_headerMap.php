@@ -13,7 +13,7 @@
                     <a class="nav-link" href="/">Home</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="/peta">Cek kesesuaian</a>
+                    <a class="nav-link toggleCekKesesuaian" href="/peta">Cek kesesuaian</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="/data/modul">Modul</a>

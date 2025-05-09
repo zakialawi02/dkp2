@@ -60,6 +60,7 @@
                         <th scope="col" style="min-width: 50px; max-width: 100px;">No.</th>
                         <th scope="col" style="min-width: 300px; max-width: 500px;">Nama Kegiatan</th>
                         <th scope="col" style="min-width: 100px; max-width: 300px;">Kode Kegiatan</th>
+                        <th scope="col" style="min-width: 100px; max-width: 200px;">Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -70,6 +71,40 @@
     </div>
 </div>
 
+<!-- MODAL EDIT/UPDATE -->
+<div class="modal fade" id="modalEdit" aria-labelledby="modalEditLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalEditLabel">Edit</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">✕</button>
+            </div>
+            <div class="modal-body">
+                <div id="error-messages"></div>
+                <div class="tempatEdit">
+                    <form id="editForm" method="post">
+                        <?php csrf_field() ?>
+
+                        <div class="mb-3">
+                            <label for="editKegiatan" class="form-label">Nama Kegiatan</label>
+                            <input type="text" class="form-control" name="editKegiatan" id="editKegiatan" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editKKegiatan" class="form-label">Kode Kegiatan</label>
+                            <input type="text" class="form-control" name="editKKegiatan" id="editKKegiatan" required>
+                        </div>
+                        <div class="form-text" id="textHelp" style="color: red;"></div>
+                        <div class="p-1 text-end">
+                            <button type="submit" role="button" class="btn btn-primary" id="saveBtn">Simpan</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
 <?php $this->endSection() ?>
 
 
@@ -77,6 +112,8 @@
 
 <script>
     $(document).ready(function() {
+        const cardErrorMessages = `<div id="body-messages" class="alert alert-danger" role="alert"></div>`;
+
         let table = new DataTable('#myTable', {
             processing: true,
             serverSide: true,
@@ -108,25 +145,16 @@
                     data: 'kode_kegiatan',
                     name: 'kode_kegiatan',
                 },
-
+                {
+                    data: 'aksi',
+                    name: 'aksi',
+                    orderable: false,
+                    searchable: false
+                },
             ],
         });
 
-        // Setup CSRF Token for AJAX requests
-        function setupCSRFToken() {
-            $.ajaxSetup({
-                headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                }
-            });
-        }
-        // Update CSRF token after every successful request
-        function updateCSRFToken(response) {
-            var csrfToken = response.responseJSON.token;
-
-            $('meta[name="csrf-token"]').attr('content', csrfToken);
-        }
-
+        // Save
         $("#tambahForm").submit(function(e) {
             e.preventDefault();
             setupCSRFToken();
@@ -169,6 +197,130 @@
                 }
             });
         });
+
+        // Update
+        $("#editForm").submit(function(e) {
+            e.preventDefault();
+            setupCSRFToken();
+            const formData = $('#editForm').serialize();
+            const formAction = $('#editForm').attr('action');
+            const method = $('#editForm').attr('method');
+
+            $.ajax({
+                type: method,
+                url: formAction,
+                data: formData,
+                beforeSend: function() {
+                    $("#error-messages").html("");
+                    $('#saveBtn').prop('disabled', true);
+                },
+                success: function(response) {
+                    $('#modalEdit').modal('hide');
+                    $('#myTable').DataTable().ajax.reload();
+                    Swal.fire({
+                        title: "Success!",
+                        text: response.message,
+                        icon: "success",
+                        timer: 2000,
+                        timerProgressBar: true,
+                        confirmButtonText: "Ok"
+                    });
+                },
+                error: function(error) {
+                    console.log(error);
+                    $("#error-messages").html(cardErrorMessages);
+                    const messages = error.responseJSON.errors;
+                    console.log(messages);
+                    try {
+                        $.each(messages, function(indexInArray, message) {
+                            $("#body-messages").append('<span>' + message + '</span> <br>');
+                        });
+                    } catch (error) {
+                        $("#body-messages").append('<span>' + messages + '</span> <br>');
+                    }
+                },
+                complete: function(response) {
+                    $('#saveBtn').prop('disabled', false);
+                    updateCSRFToken(response);
+                }
+            });
+
+        });
+
+        // Edit data
+        $('body').on('click', '.editData', function() {
+            $("#error-messages").html("");
+            const data = $(this).data('kode');
+
+            $.get(`<?= route_to('admin.kesesuaian.kegiatan.show', ':data') ?>`.replace(':data', data), function(response) {
+                $('#modalEdit').modal('show');
+                $('#modalEdit').find('.modal-title').text('Edit Data');
+                $('#editForm').attr('action', `<?= route_to('admin.kesesuaian.kegiatan.update', ':data') ?>`.replace(':data', data));
+                $('#saveBtn').text('Update');
+                $('#_method').val('PUT');
+                $('#editKegiatan').val(response.data?.nama_kegiatan);
+                $('#editKKegiatan').val(response.data?.kode_kegiatan);
+            });
+        });
+
+        // Delete data
+        $('body').on('click', '.deleteData', function(e) {
+            e.preventDefault();
+            let csrfToken = $('input[name="csrf_test_name"]').val();
+            const data = $(this).data('kode');
+
+            confirmDelete(data);
+        })
+
+        function confirmDelete(data) {
+            Swal.fire({
+                title: "Are you sure you want to delete this record?",
+                text: 'You won\'t be able to revert this!',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#74788d',
+                confirmButtonText: 'Yes, delete it!',
+                cancelButtonColor: '#5664d2',
+                cancelButtonText: 'Cancel',
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    deleteData(data);
+                }
+            });
+        }
+
+        function deleteData(data) {
+            setupCSRFToken();
+            $.ajax({
+                type: "DELETE",
+                url: `<?= route_to('admin.kesesuaian.kegiatan.delete', ':data') ?>`.replace(':data', data),
+                success: function(response) {
+                    $('#myTable').DataTable().ajax.reload();
+                    Swal.fire({
+                        title: "Success!",
+                        text: response.message,
+                        icon: "success",
+                        timer: 2000,
+                        timerProgressBar: true,
+                        confirmButtonText: "Ok"
+                    });
+                },
+                error: function(error) {
+                    console.error(error);
+                    Swal.fire({
+                        title: "Error!",
+                        text: error.responseJSON.message,
+                        icon: "error",
+                        timer: 2000,
+                        timerProgressBar: true,
+                        confirmButtonText: "Ok"
+                    });
+                },
+                complete: function(response) {
+                    updateCSRFToken(response);
+                }
+            });
+        }
     });
 </script>
 <?php $this->endSection() ?>

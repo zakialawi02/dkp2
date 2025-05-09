@@ -69,6 +69,42 @@
 /*--------------------------------------------------------------
 # General Styling & Shared Classes
 --------------------------------------------------------------*/
+p.boleh {
+    color: #000000;
+    font-size: small;
+    display: block;
+    background-color: #66ff66;
+    width: 13rem;
+    padding: 0.1rem 0.2rem 0.1rem 0.8rem;
+    margin-left: 5px;
+    font-weight: 700;
+    border-radius: 12px;
+}
+
+p.bolehBersyarat {
+    color: #000000;
+    font-size: small;
+    display: block;
+    background-color: #ffff66;
+    width: 22rem;
+    padding: 0.1rem 0.2rem 0.1rem 0.8rem;
+    margin-left: 5px;
+    font-weight: 700;
+    border-radius: 12px;
+}
+
+p.tidakBoleh {
+    color: #000000;
+    font-size: small;
+    display: block;
+    background-color: #ff6666;
+    width: 19rem;
+    padding: 0.1rem 0.2rem 0.1rem 0.8rem;
+    margin-left: 5px;
+    font-weight: 700;
+    border-radius: 12px;
+}
+
 nav.navbar ul li a {
     font-size: 16px;
     font-weight: 600;
