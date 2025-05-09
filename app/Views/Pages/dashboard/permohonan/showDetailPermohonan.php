@@ -217,7 +217,7 @@
 
     <div class="card mb-2 p-2">
         <div class="map" id="map"></div>
-        <span id="coordinates"></span>
+        <div class="d-none d-lg-block fs-6" id="mousePosition"></div>
     </div>
 
     <div class="card ambilTindakanJawaban">
@@ -424,14 +424,12 @@
                 scale: 0.8
             })
         });
-
         const lineStyle = new ol.style.Style({
             stroke: new ol.style.Stroke({
                 color: 'red',
                 width: 2
             })
         });
-
         const polygonStyle = new ol.style.Style({
             fill: new ol.style.Fill({
                 color: 'rgba(210, 0, 0, 0.4)'
@@ -453,14 +451,12 @@
                 scale: 0.8
             })
         });
-
         const lineStyleEks = new ol.style.Style({
             stroke: new ol.style.Stroke({
                 color: 'rgba(255, 191, 0)',
                 width: 2
             })
         });
-
         const polygonStyleEks = new ol.style.Style({
             fill: new ol.style.Fill({
                 color: 'rgba(255, 191, 0, 0.7)'
@@ -534,6 +530,72 @@
             crossOrigin: 'anonymous'
         });
 
+        // Mouse Position
+        const mousePositionControl = new MousePosition({
+            target: document.getElementById("mousePosition"),
+            coordinateFormat: function(coordinate) {
+                const {
+                    formattedLon,
+                    formattedLat
+                } = coordinateFormatIndo(
+                    coordinate,
+                    "dd"
+                );
+
+                return (
+                    "Long: " + formattedLon + " &nbsp&nbsp&nbsp  Lat: " + formattedLat
+                );
+            },
+            projection: "EPSG:4326",
+            placeholder: "Long: - &nbsp&nbsp&nbsp  Lat: -",
+            className: "ol-custom-mouse-position",
+        });
+
+        /**
+         * Formats the given coordinate into a specific format for Indo coordinates.
+         *
+         * @param {Array<number>} coordinate - The coordinate to be formatted. It should be an array with two elements: [longitude, latitude].
+         * @param {string} [format="dd"] - The format to use for the coordinate. It can be "dd" for decimal degrees, or "dms" for degrees, minutes, and seconds.
+         * @return {Object} An object containing the formatted longitude and latitude.
+         * @example
+         * dd=> {"formattedLon": "112.74719° BT", "formattedLat": "7.26786° LS"}
+         * or
+         * dms=> {"formattedLon": "112° 47' 17.00\" BT", "formattedLat": "7° 24' 46.00\" LS"}
+         */
+        function coordinateFormatIndo(coordinate, format = "dd") {
+            const lon = coordinate[0];
+            const lat = coordinate[1];
+
+            const lonDirection = lon < 0 ? "BB" : "BT";
+            const latDirection = lat < 0 ? "LS" : "LU"; // LS: Lintang Selatan, LU: Lintang Utara
+
+            if (format === "dms") {
+                const convertToDMS = (coord, direction) => {
+                    const absoluteCoord = Math.abs(coord);
+                    const degrees = Math.floor(absoluteCoord);
+                    const minutes = Math.floor((absoluteCoord - degrees) * 60);
+                    const seconds = (
+                        (absoluteCoord - degrees - minutes / 60) *
+                        3600
+                    ).toFixed(2);
+                    return `${degrees}° ${minutes}' ${seconds}" ${direction}`;
+                };
+                const formattedLon = convertToDMS(lon, lonDirection);
+                const formattedLat = convertToDMS(lat, latDirection);
+                return {
+                    formattedLon,
+                    formattedLat
+                };
+            } else {
+                const formattedLon = `${Math.abs(lon).toFixed(5)}° ${lonDirection}`;
+                const formattedLat = `${Math.abs(lat).toFixed(5)}° ${latDirection}`;
+                return {
+                    formattedLon,
+                    formattedLat
+                };
+            }
+        }
+
         // Group Base Maps
         const baseMaps = new ol.layer.Group({
             title: 'Base Map',
@@ -564,6 +626,7 @@
                 new ol.control.Attribution(),
                 //Define some new controls
                 new ol.control.ScaleLine(),
+                mousePositionControl,
             ],
             view: view
         });

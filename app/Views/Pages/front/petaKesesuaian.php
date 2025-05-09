@@ -305,7 +305,7 @@
                     <div class="form-group">
                         <label class="col-md-12 mb-2">Jenis Kegiatan</label>
                         <select class="form-select form-select-sm" id="pilihKegiatan" name="kegiatan" for="kegiatan" style="width: 100%;" onchange="cek()" required>
-                            <option>-- Pilih Jenis Kegiatan --</option>
+                            <option value="">-- Pilih Jenis Kegiatan --</option>
                             <?php foreach ($jenisKegiatan as $K) : ?>
                                 <option value="<?= $K->id_kegiatan; ?>"><?= esc($K->nama_kegiatan); ?></option>
                             <?php endforeach ?>
@@ -1945,6 +1945,12 @@
     }
 
     function kirim() {
+        const kegiatan = document.getElementById('pilihKegiatan').value;
+        if (kegiatan === "") {
+            alert("Silakan pilih jenis kegiatan terlebih dahulu.");
+            return false;
+        }
+
         let valKegiatan = $('#pilihKegiatan').val();
         let hasilStatus = $("#hasilStatus").val();
         let geojson = GEOJSON_DATA;
